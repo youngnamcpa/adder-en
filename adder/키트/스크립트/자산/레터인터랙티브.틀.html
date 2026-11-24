@@ -1,0 +1,914 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>인터랙티브 판</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700&family=Noto+Sans+KR:wght@400;500;700&display=swap">
+<style>
+:root{
+  --paper:#FBFBFC; --paper-2:#F3F4F7; --ink:#14171C; --ink-2:#3D454F;
+  --muted:#5C6570; --rule:#DDE1E7; --rule-2:#C6CCD5;
+  --accent:#1D4E6F; --accent-soft:#E8EFF4; --flag:#9A3B2E; --flag-soft:#F7EBE8;
+  --series-1:#2a78d6; --ghost:#5C6570; --band:#DCE8F2; --actual:#B9C0CA;
+  --c1:#2a78d6; --c2:#eb6834; --c3:#1baf7a; --c4:#eda100; --c5:#e87ba4; --c6:#008300; --c7:#6250d6; --c8:#e34948;
+  --heat-lo:#EEF3F8; --heat-hi:#1D4E6F;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#101317; --paper-2:#171B21; --ink:#E6E9ED; --ink-2:#C2C8D0;
+    --muted:#8B95A1; --rule:#262C34; --rule-2:#39414B;
+    --accent:#7FB2D4; --accent-soft:#17242E; --flag:#D98A7C; --flag-soft:#2A1D1A;
+    --series-1:#3987e5; --ghost:#8B95A1; --band:#1B2A36; --actual:#4A525D;
+    --c1:#3987e5; --c2:#d95926; --c3:#199e70; --c4:#c98500; --c5:#d55181; --c6:#008300; --c7:#9085e9; --c8:#e66767;
+    --heat-lo:#1A222B; --heat-hi:#7FB2D4;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#101317; --paper-2:#171B21; --ink:#E6E9ED; --ink-2:#C2C8D0;
+  --muted:#8B95A1; --rule:#262C34; --rule-2:#39414B;
+  --accent:#7FB2D4; --accent-soft:#17242E; --flag:#D98A7C; --flag-soft:#2A1D1A;
+  --series-1:#3987e5; --ghost:#8B95A1; --band:#1B2A36; --actual:#4A525D;
+  --c1:#3987e5; --c2:#d95926; --c3:#199e70; --c4:#c98500; --c5:#d55181; --c6:#008300; --c7:#9085e9; --c8:#e66767;
+  --heat-lo:#1A222B; --heat-hi:#7FB2D4;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{margin:0; background:var(--paper); color:var(--ink);
+  font-family:"Noto Sans KR","Malgun Gothic",system-ui,sans-serif; font-size:16px; line-height:1.7;
+  word-break:keep-all; overflow-wrap:break-word; font-variant-numeric:tabular-nums}
+.wrap{max-width:46rem; margin:0 auto; padding:2.5rem 16px 4rem}
+h1,h2{font-family:"Nanum Myeongjo","Batang",Georgia,serif; margin:0; text-wrap:balance}
+h1{font-size:1.7rem; line-height:1.35}
+h2{font-size:1.18rem; margin:2.6rem 0 .4rem; padding-top:.9rem; border-top:1px solid var(--rule)}
+h3{font-size:.95rem; margin:1.1rem 0 .1rem; color:var(--ink-2)}
+.kicker{margin:0 0 .4rem; color:var(--muted); font-size:.88rem}
+.lede{color:var(--ink-2); margin:.8rem 0 0}
+.notice{margin:.9rem 0 0; padding:.6rem .85rem; border-left:2px solid var(--accent); background:var(--accent-soft); font-size:.86rem; color:var(--ink-2)}
+.notice ul{margin:.2rem 0 0; padding-left:1.1rem}
+.num{font-variant-numeric:tabular-nums}
+.cap{font-size:.82rem; color:var(--muted); margin:.4rem 0 0}
+
+.heads{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:.6rem 1.2rem; margin:.8rem 0 0; padding:1rem 1.1rem; background:var(--paper-2); border:1px solid var(--rule); border-radius:4px}
+.heads .lab{font-size:.8rem; color:var(--muted)}
+.heads .val{font-size:1.25rem; font-weight:700}
+.heads .big{grid-column:1/-1}
+.heads .big .val{font-size:2.1rem}
+.od{display:inline-flex; overflow:hidden; vertical-align:bottom; line-height:1.2}
+.od .col{display:inline-block; height:1.2em; overflow:hidden}
+.od .strip{display:flex; flex-direction:column; transition:transform .7s cubic-bezier(.65,0,.35,1)}
+.od .strip span{height:1.2em; line-height:1.2em}
+.od .fix{display:inline-block}
+@media (prefers-reduced-motion: reduce){ .od .strip{transition:none} }
+
+.hero{margin:1rem 0 0; padding:1rem 1.1rem; background:var(--paper-2); border:1px solid var(--rule); border-radius:4px}
+.hero-label{font-size:.92rem; color:var(--ink-2); font-weight:500}
+.hero-num{font-size:2rem; font-weight:700; line-height:1.25}
+.hero-sub{color:var(--muted); font-size:.92rem}
+.chip{display:inline-block; margin-top:.5rem; padding:.05rem .55rem; border-radius:999px; font-size:.8rem; border:1px solid var(--rule-2); color:var(--ink-2); background:var(--paper)}
+.chip.block{border-color:var(--flag); color:var(--flag); background:var(--flag-soft)}
+.err{margin:.6rem 0 0; padding:.55rem .8rem; border-left:2px solid var(--flag); background:var(--flag-soft); font-size:.9rem}
+.kpis{display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:.2rem 1rem; margin:.8rem 0 0; padding:.7rem 0 0; border-top:1px solid var(--rule)}
+.kpis dt{font-size:.76rem; color:var(--muted); line-height:1.35}
+.kpis dd{margin:0; font-weight:700}
+
+.knobs{display:grid; gap:.8rem; margin:1rem 0 0}
+.knob{padding:.75rem .9rem .6rem; border:1px solid var(--rule); border-left:3px solid var(--rule-2); border-radius:4px; background:var(--paper)}
+.knob.moved{border-left-color:var(--series-1)}
+.knob.out{border-left-color:var(--flag)}
+.knob-head{display:flex; justify-content:space-between; align-items:baseline; gap:.8rem; flex-wrap:wrap}
+.knob-name{font-weight:700}
+.knob-val{font-weight:700; color:var(--accent)}
+.knob.out .knob-val{color:var(--flag)}
+.range{position:relative; height:30px; margin:.3rem 9px 0}
+.range .track{position:absolute; left:0; right:0; top:13px; height:4px; border-radius:2px; background:var(--rule)}
+.range .bandbar{position:absolute; top:11px; height:8px; border-radius:2px; background:var(--band); border:1px solid var(--rule-2)}
+.range .tick{position:absolute; top:9px; width:2px; height:12px; margin-left:-1px; background:var(--rule-2)}
+.range .tick.base{background:var(--ink-2); height:16px; top:7px}
+.range .tick.block{background:var(--flag)}
+.range input{position:absolute; left:-9px; right:-9px; top:0; width:calc(100% + 18px); height:30px; margin:0; background:transparent; -webkit-appearance:none; appearance:none; cursor:pointer}
+.range input:focus{outline:none}
+.range input::-webkit-slider-runnable-track{height:30px; background:transparent}
+.range input::-moz-range-track{height:30px; background:transparent}
+.range input::-webkit-slider-thumb{-webkit-appearance:none; width:18px; height:18px; margin-top:6px; border-radius:50%; background:var(--paper); border:3px solid var(--series-1); box-shadow:0 0 0 2px var(--paper)}
+.range input::-moz-range-thumb{width:12px; height:12px; border-radius:50%; background:var(--paper); border:3px solid var(--series-1)}
+.knob.out .range input::-webkit-slider-thumb{border-color:var(--flag)}
+.range input:focus-visible::-webkit-slider-thumb{box-shadow:0 0 0 3px var(--accent-soft),0 0 0 5px var(--accent)}
+.labels{position:relative; height:1.2rem; margin:0 9px; font-size:.72rem; color:var(--muted)}
+.labels span{position:absolute; transform:translateX(-50%); white-space:nowrap}
+.labels span.first{transform:none}
+.labels span.last{transform:translateX(-100%)}
+.knob-band{font-size:.8rem; margin:.35rem 0 0; color:var(--muted)}
+.knob-res{margin:.35rem 0 0;font-size:.86rem;font-weight:500}
+.knob-band b{color:var(--ink-2)}
+.knob.out .knob-band b{color:var(--flag)}
+.tools{display:flex; gap:.6rem .8rem; align-items:center; flex-wrap:wrap; margin:.8rem 0 0}
+button{font:inherit; font-size:.86rem; padding:.3rem .8rem; border-radius:4px; border:1px solid var(--rule-2); background:var(--paper); color:var(--ink); cursor:pointer}
+button:hover{background:var(--paper-2)}
+button.primary{background:var(--ink); color:var(--paper); border-color:var(--ink)}
+button[aria-pressed="true"]{background:var(--ink); color:var(--paper); border-color:var(--ink)}
+.note{font-size:.84rem; color:var(--muted); margin:0}
+.stage-cap{margin:.5rem 0 0; min-height:3.2em; padding:.55rem .8rem; background:var(--paper-2); border-radius:4px; font-size:.9rem; color:var(--ink-2)}
+.formula{font-size:.86rem; color:var(--ink-2); margin:.2rem 0 0; transition:opacity .2s linear}
+.result{margin:.5rem 0 0; padding:.7rem .9rem; border:1px solid var(--rule); border-radius:4px; transition:opacity .2s linear}
+.result .big{font-size:1.4rem; font-weight:700}
+.result .sm{font-size:.86rem; color:var(--muted)}
+.chart{position:relative; margin:.4rem 0 0}
+.chart svg{display:block; width:100%; height:auto; overflow:visible}
+.legend{display:flex; gap:.4rem 1.1rem; flex-wrap:wrap; font-size:.8rem; color:var(--ink-2); margin:.3rem 0 0}
+.legend i{display:inline-block; width:18px; height:0; vertical-align:middle; margin-right:.35rem; border-top:2px solid var(--series-1)}
+.legend i.ghost{border-top:2px dashed var(--ghost)}
+.legend i.price{border-top:1.5px dashed var(--ink)}
+.legend i.sw{width:11px; height:11px; border:0; border-radius:2px; vertical-align:-1px}
+.legend i.bandsw{height:8px; border:1px solid var(--rule-2); background:var(--band)}
+.tip{position:absolute; pointer-events:none; padding:.35rem .55rem; border-radius:4px; font-size:.78rem; line-height:1.45; background:var(--paper); border:1px solid var(--rule-2); box-shadow:0 2px 8px rgba(0,0,0,.12); white-space:nowrap; z-index:2}
+.tip[hidden]{display:none}
+svg text{font-family:"Noto Sans KR","Malgun Gothic",system-ui,sans-serif}
+.t-tick{font-size:11px; fill:var(--muted)}
+.t-label{font-size:11.5px; fill:var(--ink-2)}
+.t-strong{font-size:12px; fill:var(--ink); font-weight:700}
+.t-flag{font-size:11px; fill:var(--flag)}
+.grid{stroke:var(--rule); stroke-width:1}
+.axis{stroke:var(--rule-2); stroke-width:1}
+.heat{width:100%; border-collapse:separate; border-spacing:2px; margin:.6rem 0 0; font-size:.72rem; table-layout:fixed}
+.heat th{font-weight:500; color:var(--muted); padding:.1rem; text-align:center; white-space:nowrap; overflow:hidden}
+.heat td{height:1.9rem; text-align:center; cursor:pointer; border-radius:2px; color:var(--ink); outline:0 solid transparent; overflow:hidden; white-space:nowrap}
+.heat td.dark{color:var(--paper)}
+.heat td.base{box-shadow:inset 0 0 0 2px var(--ink)}
+.heat td.sel{outline:2px solid var(--flag); outline-offset:1px}
+.heat td.blocked{background:repeating-linear-gradient(45deg,var(--paper-2),var(--paper-2) 4px,var(--rule) 4px,var(--rule) 6px); color:var(--flag)}
+.two{display:grid; grid-template-columns:1fr 1fr; gap:.6rem 1rem}
+.drill{cursor:pointer}
+.about{font-size:.86rem; color:var(--ink-2)}
+.about li{margin:.3rem 0}
+@media (max-width:560px){
+  .kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .heads .big .val{font-size:1.7rem}
+  .two{grid-template-columns:1fr}
+  .heat td{height:1.6rem; font-size:.6rem}
+  h1{font-size:1.45rem}
+}
+@media print{ .tools, button{display:none} }
+/* 모델 설계(본편에서 옮긴 절) — 접힘 칸. 열고 닫을 때 움직임 없음(정적) */
+.design{margin:.8rem 0 0; display:grid; grid-template-columns:minmax(0,1fr); gap:.5rem}
+.design details{min-width:0; border:1px solid var(--rule); border-radius:4px; background:var(--paper)}
+.design details[open]{background:var(--paper)}
+.design summary{cursor:pointer; padding:.65rem .9rem; list-style:none; display:grid; grid-template-columns:minmax(0,1fr) auto; gap:.1rem .8rem; align-items:baseline}
+.design summary::-webkit-details-marker{display:none}
+.design summary:focus-visible{outline:2px solid var(--accent); outline-offset:2px}
+.design summary .t{font-weight:700; color:var(--ink)}
+.design summary .k{font-size:.78rem; color:var(--muted); white-space:nowrap}
+.design summary .k::after{content:"펼치기"}
+.design details[open] > summary .k::after{content:"접기"}
+.design summary .s{grid-column:1/-1; font-size:.86rem; color:var(--ink-2); line-height:1.6}
+.design details[open] > summary .s{display:none}
+.design .body{padding:.3rem .9rem .9rem; border-top:1px solid var(--rule); font-size:.92rem}
+.design .body p{margin:.55rem 0 0}
+.design .body h4{font-size:.92rem; margin:1.1rem 0 .1rem; color:var(--ink)}
+.design .body ul{margin:.45rem 0 0; padding-left:1.15rem}
+.design .body li{margin:.2rem 0}
+.design .body blockquote{margin:.55rem 0 0; padding:.4rem .75rem; border-left:2px solid var(--rule-2); color:var(--ink-2); background:var(--paper-2)}
+.design .fig{margin:.6rem 0 0; padding:.4rem .7rem; border:1px dashed var(--rule-2); border-radius:4px; font-size:.82rem; color:var(--muted)}
+.design .fig a{color:var(--accent)}
+.design .tbl{overflow-x:auto; margin:.55rem 0 0}
+.design table{border-collapse:collapse; font-size:.8rem; min-width:100%}
+.design th,.design td{padding:.28rem .5rem; border-bottom:1px solid var(--rule); vertical-align:top; text-align:left}
+.design th{font-weight:500; color:var(--ink-2); border-bottom:1px solid var(--rule-2); background:var(--paper-2)}
+.design td.r,.design th.r{text-align:right; white-space:nowrap}
+.design td.c,.design th.c{text-align:center}
+.design .go{display:inline-block; margin:.7rem 0 0; font-size:.84rem; color:var(--accent)}
+.lede a,.about a,.cap a{color:var(--accent)}
+/* 서사(2026-10-25 R6 — 본편에서 옮긴 글: 결론 · Narrative · 시나리오 세계 · 역산 판정 · 틀릴 길) */
+h2.lead-h{margin-top:1.4rem}
+.band{margin:1rem 0 0; padding:.9rem 1rem; border:2px solid var(--flag); border-radius:4px; background:var(--flag-soft); color:var(--ink); font-size:1.02rem; line-height:1.6}
+.band b{color:var(--flag); font-size:1.12rem}
+.concl{display:grid; gap:.55rem; margin:.7rem 0 0}
+.cl{padding:.55rem .85rem; border-left:3px solid var(--rule-2); background:var(--paper)}
+.cl p{margin:.1rem 0 0}
+.cl.first{border-left-color:var(--accent); background:var(--accent-soft)}
+.cl.first p{font-size:1.06rem; color:var(--ink)}
+.cl-k{display:inline-block; margin-right:.45rem; font-size:.74rem; font-weight:700; letter-spacing:.02em; color:var(--muted)}
+.cl .cl-k{display:block; margin:0}
+.story{font-size:.95rem}
+.story p{margin:.6rem 0 0}
+.story h3,.scen h3{margin:1.1rem 0 .1rem; font-size:.98rem; color:var(--ink)}
+.story h4{font-size:.92rem; margin:1rem 0 .1rem; color:var(--ink)}
+.story ul{margin:.45rem 0 0; padding-left:1.15rem}
+.story blockquote{margin:.55rem 0 0; padding:.4rem .75rem; border-left:2px solid var(--rule-2); color:var(--ink-2); background:var(--paper-2)}
+.story .fig{margin:.6rem 0 0; padding:.4rem .7rem; border:1px dashed var(--rule-2); border-radius:4px; font-size:.82rem; color:var(--muted)}
+.story .fig a,.story .go,.scen .go{color:var(--accent)}
+.story .go,.scen .go{display:inline-block; margin:.7rem 0 0; font-size:.84rem}
+.story .tbl,.scen .tbl{overflow-x:auto; margin:.55rem 0 0}
+.story table,.scen table{border-collapse:collapse; font-size:.8rem; min-width:100%}
+.story th,.story td,.scen th,.scen td{padding:.28rem .5rem; border-bottom:1px solid var(--rule); vertical-align:top; text-align:left}
+.story th,.scen th{font-weight:500; color:var(--ink-2); border-bottom:1px solid var(--rule-2); background:var(--paper-2)}
+.story td.r,.story th.r,.scen td.r,.scen th.r{text-align:right; white-space:nowrap}
+.scen th.sel,.scen td.sel{background:var(--accent-soft); color:var(--ink); font-weight:700}
+.scen{margin:.8rem 0 0; font-size:.95rem}
+.scen p{margin:.55rem 0 0}
+.scen .world{font-size:1.02rem; color:var(--ink); padding:.55rem .85rem; border-left:3px solid var(--accent); background:var(--accent-soft)}
+.scen .obs{color:var(--ink-2)}
+.scen .obs .cl-k,.knob-story .cl-k{display:inline}
+.more{margin:.6rem 0 0; border:1px solid var(--rule); border-radius:4px; padding:.1rem .8rem .5rem}
+.more summary{cursor:pointer; padding:.45rem 0; font-size:.88rem; color:var(--ink-2)}
+.more summary:focus-visible{outline:2px solid var(--accent); outline-offset:2px}
+.verdict{font-size:1rem; color:var(--ink); padding:.55rem .85rem; border-left:3px solid var(--flag); background:var(--paper-2)}
+.knob-story{font-size:.84rem; margin:.3rem 0 0; color:var(--ink-2); line-height:1.6}
+.knob-story .muted{color:var(--muted)}
+.tag{display:inline-block; margin-left:.4rem; padding:0 .45rem; border-radius:999px; font-size:.72rem; font-weight:700; color:var(--accent); border:1px solid var(--accent); vertical-align:2px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<!--ix:머리-->
+<header>
+  <p class="kicker" id="kicker"></p>
+  <h1 id="h1"></h1>
+  <div class="band" id="실험띠" role="alert" hidden></div>
+  <div class="notice" id="알림" hidden></div>
+  <div class="notice" id="적합성" hidden></div>
+</header>
+<!--/ix:머리-->
+
+<!--ix:결론-->
+<section id="결론절" aria-labelledby="결론제목">
+<h2 id="결론제목" class="lead-h">결론</h2>
+<div class="concl" id="결론"></div>
+<p class="lede" id="본편링크" hidden></p>
+</section>
+<!--/ix:결론-->
+
+<!--ix:이야기-->
+<section id="이야기절" aria-labelledby="이야기제목">
+<h2 id="이야기제목">Narrative : 회사를 보는 판단</h2>
+<div class="story" id="이야기"></div>
+</section>
+<!--/ix:이야기-->
+
+<!--ix:시나리오-->
+<h2>세 시나리오의 주당가치</h2>
+<div class="story" id="시나리오머리"></div>
+<div class="tools" id="시나리오단추" role="group" aria-label="시나리오"></div>
+<div class="heads num" aria-live="polite">
+  <div class="big"><div class="lab">이 가정들에서 계산한 주당가치</div><div class="val" id="od주당"></div></div>
+  <div><div class="lab">주주가치</div><div class="val" id="od주주"></div></div>
+  <div><div class="lab">영업가치</div><div class="val" id="od영업"></div></div>
+  <div class="big"><div class="lab" id="종가말"></div><div class="val" id="od종가"></div></div>
+</div>
+<div class="scen" id="시나리오글" aria-live="polite"></div>
+<div class="scen" id="시나리오표"></div>
+<!--/ix:시나리오-->
+
+<!--ix:설계-->
+<h2 id="설계제목">모델 설계 : 항목마다 무엇을 근거로 어떻게 추정했나</h2>
+<p class="cap" id="설계설명"></p>
+<div class="design" id="설계"></div>
+<!--/ix:설계-->
+
+<!--ix:손잡이-->
+<h2 id="가정제목">주요 가정을 움직여 보기</h2>
+<p class="cap" id="가정설명"></p>
+<section class="hero" aria-live="polite">
+  <div class="hero-label">이 가정들에서 계산한 주당가치</div>
+  <div class="hero-num num" id="hNum"></div>
+  <div class="hero-sub num" id="hSub"></div>
+  <div class="chip" id="chip"></div>
+  <p class="err" id="err" hidden></p>
+  <dl class="kpis num">
+    <div><dt>WACC</dt><dd id="kW"></dd></div>
+    <div><dt>영업가치 중 영구가치</dt><dd id="kTV"></dd></div>
+    <div><dt>영구기간 영업이익률</dt><dd id="kOM"></dd></div>
+    <div><dt>기준 시나리오 대비</dt><dd id="kD"></dd></div>
+  </dl>
+</section>
+<section class="knobs" id="knobs" aria-label="가정 슬라이더"></section>
+<div class="tools">
+  <button type="button" id="reset">기준 시나리오로 되돌리기</button>
+  <p class="note" id="note"></p>
+</div>
+<h3 id="cTitle"></h3>
+<div class="chart" id="curveBox"><svg id="curve" role="img" aria-labelledby="cTitle"></svg><div class="tip" id="tip1" hidden></div></div>
+<div class="legend"><span><i></i>지금 옮긴 가정</span><span id="lgGhost"><i class="ghost"></i>짝 가정을 기준에 둘 때</span><span><i class="price"></i>평가기준일 종가</span><span><i class="bandsw"></i>근거 범위</span></div>
+<!--/ix:손잡이-->
+
+<!--ix:모션-->
+<h2 id="mTitle">매출에서 주당가치까지</h2>
+<div class="tools">
+  <button type="button" class="primary" id="mPlay">순서대로 보기</button>
+  <button type="button" id="mNext" hidden>다음</button>
+  <button type="button" id="mEnd" hidden>다 된 그림으로</button>
+</div>
+<p class="stage-cap" id="mCap" aria-live="polite"></p>
+<h3 id="p1Title"></h3>
+<div class="chart" id="p1Box"><svg id="p1" role="img" aria-labelledby="p1Title"></svg><div class="tip" id="tipP1" hidden></div></div>
+<div class="legend" id="p1Leg"></div>
+<h3 id="p2Title"></h3>
+<div class="chart" id="p2Box"><svg id="p2" role="img" aria-labelledby="p2Title"></svg><div class="tip" id="tipP2" hidden></div></div>
+<div class="legend"><span><i class="sw" style="background:var(--series-1)"></i>현재가치</span><span><i class="ghost"></i>할인 전 FCFF</span><span><i class="sw" style="background:var(--series-1);opacity:.35"></i>영구가치의 해마다 몫</span></div>
+<p class="formula" id="p2F"></p>
+<h3 id="p3Title"></h3>
+<div class="chart" id="p3Box"><svg id="p3" role="img" aria-labelledby="p3Title"></svg></div>
+<p class="cap" id="p3Cap"></p>
+<div class="result" id="p3R"></div>
+<!--/ix:모션-->
+
+<!--ix:격자-->
+<h2>WACC와 영구 가정의 격자</h2>
+<div class="tools" id="표단추" role="group" aria-label="격자"></div>
+<div class="two">
+  <div><div class="knob-head"><span class="knob-name" id="가로이름"></span><span class="knob-val num" id="가로값"></span></div>
+    <div class="range"><span class="track"></span><input type="range" id="가로" min="0" step="1" aria-labelledby="가로이름"></div></div>
+  <div><div class="knob-head"><span class="knob-name" id="세로이름"></span><span class="knob-val num" id="세로값"></span></div>
+    <div class="range"><span class="track"></span><input type="range" id="세로" min="0" step="1" aria-labelledby="세로이름"></div></div>
+</div>
+<div class="hero" aria-live="polite"><div class="hero-label">이 칸의 가정들에서 계산한 주당가치</div><div class="hero-num num" id="칸값"></div><div class="hero-sub num" id="칸말"></div></div>
+<div style="overflow-x:auto"><table class="heat num" id="heat"></table></div>
+<p class="cap" id="heatCap"></p>
+<!--/ix:격자-->
+
+<!--ix:역산-->
+<h2>종가가 전제한 값</h2>
+<div class="chart" id="invBox"><svg id="inv" role="img" aria-label="역산 곡선"></svg><div class="tip" id="tipInv" hidden></div></div>
+<p class="cap" id="invCap"></p>
+<div class="story" id="역판정"></div>
+<!--/ix:역산-->
+
+<!--ix:분포-->
+<section id="분포절">
+<h2>근거 범위 안의 조합들</h2>
+<div class="tools"><button type="button" class="primary" id="쌓기">쌓아 보기</button></div>
+<div class="chart" id="histBox"><svg id="hist" role="img" aria-label="결합 민감도 분포"></svg></div>
+<p class="cap" id="histCap"></p>
+</section>
+<!--/ix:분포-->
+
+<!--ix:풋볼-->
+<h2>방법마다의 띠</h2>
+<div class="chart" id="ffBox"><svg id="ff" role="img" aria-label="방법마다의 주당가치 띠"></svg></div>
+<p class="cap" id="ffCap"></p>
+<!--/ix:풋볼-->
+
+<!--ix:끝-->
+<section id="끝절" aria-labelledby="끝제목">
+<h2 id="끝제목">틀릴 길 · 다음 점검 · 이해관계</h2>
+<div class="story" id="끝"></div>
+</section>
+<!--/ix:끝-->
+
+<!--ix:읽기-->
+<h2>이 판을 읽는 방법</h2>
+<p class="lede">레터의 둘째 독자를 위한 선택 판입니다. 이 페이지는 계산하지 않습니다. 화면의 숫자는 모두 평가 모델이 미리 계산해 레터의 장부와 함께 넣은 값이고, 슬라이더와 표는 미리 계산한 칸을 고를 뿐입니다. 글은 본편 레터에서 그대로 옮겼습니다.</p>
+<ul class="about" id="about"></ul>
+<!--/ix:읽기-->
+</div>
+
+<script type="application/json" id="레터데이터">/*__데이터__*/null</script>
+<script>/*__애니메시작__*/
+/*__애니메__*/
+/*__애니메끝__*/</script>
+<script>
+(function(){
+"use strict";
+const D=JSON.parse(document.getElementById("레터데이터").textContent);
+const G=D.격자, H=G.손잡이||{}, 순서=Object.keys(H), 짝=G.짝?[G.짝.세로,G.짝.가로]:[];
+const $=id=>document.getElementById(id);
+const A=window.anime;
+const 한수=["영","하나","둘","셋","넷","다섯","여섯","일곱","여덟"];
+const 날말=s=>{const m=/^(\d{4})-(\d{2})-(\d{2})/.exec(s||""); return m?`${+m[1]}년 ${+m[2]}월 ${+m[3]}일`:(s||"");};
+const 원화=G.주당단위==="원";
+const 주당=v=>v==null?"–":(원화?Math.round(v).toLocaleString("ko-KR"):v.toLocaleString("ko-KR",{minimumFractionDigits:2,maximumFractionDigits:2}))+G.주당단위;
+const 주당축=v=>원화?(Math.abs(v)>=1e4?(Math.abs(v)/1e4>=100?Math.round(v/1e4).toLocaleString("ko-KR"):(v/1e4).toFixed(1))+"만":Math.round(v).toLocaleString("ko-KR")):(Math.abs(v)>=100?Math.round(v):v.toFixed(1)).toString();
+const 금수=v=>v==null?"–":(Math.abs(v)>=1000?Math.round(v).toLocaleString("ko-KR"):Math.abs(v)>=100?v.toFixed(0):v.toFixed(1));
+const 금=v=>v==null?"–":금수(v)+G.단위.글;
+const 퍼=(v,d)=>v==null?"–":(v*100).toFixed(d==null?1:d)+"%";
+const 부호=v=>(v>0?"+":v<0?"−":"")+Math.abs(v*100).toFixed(1)+"%";
+const 받침=s=>{const c=s.charCodeAt(s.length-1)-0xAC00; return c>=0&&c<11172&&c%28!==0;};
+const 이가=s=>받침(s)?"이":"가", 은는=s=>받침(s)?"은":"는";
+const 종가말=날말(G.종가날짜)+" 종가";
+const 줄임=window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+const NS="http://www.w3.org/2000/svg";
+function el(p,tag,a,txt){const e=document.createElementNS(NS,tag); for(const k in a) if(a[k]!=null) e.setAttribute(k,a[k]); if(txt!=null) e.textContent=txt; p.appendChild(e); return e;}
+function 눈(lo,hi,개){const span=(hi-lo)||1, raw=span/개, mag=Math.pow(10,Math.floor(Math.log10(raw))), st=[1,2,2.5,5,10].map(m=>m*mag).find(s=>s>=raw)||raw;
+  const out=[]; for(let v=Math.ceil(lo/st)*st; v<=hi+1e-9; v+=st) out.push(+v.toFixed(10)); return out;}
+function 팁(tip,boxEl,x,y,html){tip.innerHTML=html; tip.hidden=false; const W=boxEl.clientWidth, w=tip.offsetWidth; tip.style.left=Math.max(0,Math.min(W-w,x-w/2))+"px"; tip.style.top=Math.max(0,y-tip.offsetHeight-10)+"px";}
+function 바(x,w,y0,y1){const r=Math.min(3,w/2,Math.abs(y1-y0)); if(Math.abs(y1-y0)<0.5) return "";
+  if(y1<y0) return `M${x},${y0}V${y1+r}Q${x},${y1} ${x+r},${y1}H${x+w-r}Q${x+w},${y1} ${x+w},${y1+r}V${y0}Z`;
+  return `M${x},${y0}V${y1-r}Q${x},${y1} ${x+r},${y1}H${x+w-r}Q${x+w},${y1} ${x+w},${y1-r}V${y0}Z`;}
+const 색=j=>`var(--c${(j%8)+1})`;
+const 글폭=g=>[...g].reduce((w,c)=>w+(c.charCodeAt(0)>0x3000?11:6.4),0)+8;
+function 칸글들(글들,칸폭){
+  let 쓸=글들.slice();
+  if(Math.max(...쓸.map(글폭))>칸폭) 쓸=쓸.map(g=>g.replace(/^(?:FY)?\d{2}(\d{2})/,"'$1"));
+  if(Math.max(...쓸.map(글폭))>칸폭) 쓸=쓸.map(g=>g.split(" ")[0]);
+  const 걸음=Math.max(1,Math.ceil(Math.max(...쓸.map(글폭))/칸폭)), 끝=쓸.length-1;
+  return 쓸.map((g,i)=>(i===끝||(i%걸음===0&&끝-i>=걸음))?g:"");
+}
+// 시계 — Anime.js 타임라인(레터 모션과 같은 시계 · 이징). 없으면 requestAnimationFrame
+const 이징=(A&&A.eases&&A.eases.inOutCubic)?A.eases.inOutCubic:(t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2);
+function 시계(ms,매번,끝){
+  if(줄임||ms<=0){매번(1); if(끝) 끝(); return {멈춤(){}};}
+  if(A&&A.createTimeline){const h={t:0}; const tl=A.createTimeline({autoplay:false,onUpdate:()=>매번(h.t),onComplete:()=>{매번(1); if(끝) 끝();}});
+    tl.add(h,{t:[0,1],duration:ms,ease:"linear"},0); tl.play(); return {멈춤(){try{tl.pause();}catch(e){}}};}
+  const t0=performance.now(); let id=0; const 틱=now=>{const t=Math.min(1,(now-t0)/ms); 매번(t); if(t<1) id=requestAnimationFrame(틱); else if(끝) 끝();};
+  id=requestAnimationFrame(틱); return {멈춤(){cancelAnimationFrame(id);}};
+}
+
+// ═══ 본편에서 옮긴 글(서사 · 설계 — 글과 표는 본편 그대로 · 이 판은 자르기만 한다) ═══
+const 서=(D.서사&&D.서사.형식)?D.서사:null, 설=D.설계;
+const 본편주소=(서&&서.html)||(설&&설.html)||null;
+const 막글=t=>(t==null?"":String(t)).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+const 줄글=t=>막글(t).replace(/\*\*(.+?)\*\*/g,"<b>$1</b>").replace(/\[([^\]]+)\]\(([^)\s]+)\)/g,"$1").replace(/`([^`]+)`/g,"$1");
+function 표글(b,보일,강조){
+  const 정=b.정렬||[], 쓸=j=>!보일||보일.includes(j);
+  const 칸=(c,j,tag)=>{const 꼴=[정[j]==="r"?"r":정[j]==="c"?"c":"",강조&&강조.includes(j)?"sel":""].filter(Boolean).join(" "); return `<${tag}${꼴?' class="'+꼴+'"':""}>${줄글(c)}</${tag}>`;};
+  const 머=b.머리&&b.머리.length?"<thead><tr>"+b.머리.map((c,j)=>쓸(j)?칸(c,j,"th"):"").join("")+"</tr></thead>":"";
+  return '<div class="tbl"><table class="num">'+머+"<tbody>"+(b.줄||[]).map(r=>"<tr>"+r.map((c,j)=>쓸(j)?칸(c,j,"td"):"").join("")+"</tr>").join("")+"</tbody></table></div>";
+}
+function 블록글(b,번호){
+  if(b.꼴==="글") return "<p>"+줄글(b.글)+"</p>";
+  if(b.꼴==="소제목") return "<h4>"+줄글(b.글)+"</h4>";
+  if(b.꼴==="표") return 표글(b);
+  if(b.꼴==="목록") return "<ul>"+(b.항목||[]).map(x=>"<li>"+줄글(x)+"</li>").join("")+"</ul>";
+  if(b.꼴==="인용") return "<blockquote>"+줄글(b.글)+"</blockquote>";
+  if(b.꼴==="그림") return '<div class="fig">'+줄글(b.글)+(본편주소?' — 그림은 <a href="'+막글(본편주소)+"#s"+번호+'">본편</a>에서 봅니다':" — 그림은 본편에서 봅니다")+"</div>";
+  return "";
+}
+const 본편로=(번호)=>본편주소?'<a class="go" href="'+막글(본편주소)+"#s"+번호+'">본편 '+번호+"절에서 보기</a>":"";
+
+// ═══ 머리 ═══
+const 재무날=(G.재무기준일&&G.재무기준일!==G.평가기준일)?G.재무기준일:"";   // 2026-10-25 날짜 둘 — 이월 판이면 재무 자료 기준일을 나란히(옛 판은 칸 없음)
+$("kicker").textContent=(D.회사||"")+" · 평가기준일 "+(G.평가기준일||"")+(재무날?" · 재무 자료 기준일 "+재무날:"")+" · 인터랙티브 판";
+$("h1").textContent=(D.제목||D.회사||"")+" — 숫자를 움직여 보기";
+document.title=(D.회사||"")+" 인터랙티브 판";
+if(D.실험){const b=$("실험띠"); b.hidden=false;
+  b.innerHTML=서?"<b>실험 판</b> · 장부 없이 낸 판이라 레터 게이트로 대조하지 않았습니다. 숫자는 평가 모델이 낸 값이지만 게이트를 지난 판이 아닙니다.":
+    "<b>서사 없는 실험 판</b> · 결론 · Narrative · 시나리오 서술 · Reverse DCF 판정이 이 판에 없습니다. 장부 없이 낸 판이라 레터 게이트로 대조하지도 않았습니다. 독자에게는 게이트를 지난 본편과 장부로 다시 낸 판을 냅니다.";
+  if(D.알림&&D.알림.length){$("알림").hidden=false; $("알림").innerHTML="<b>알림</b><ul>"+D.알림.map(x=>"<li>"+막글(x)+"</li>").join("")+"</ul>";}}
+if(D.적합성&&D.적합성.글&&D.적합성.글.length){$("적합성").hidden=false; $("적합성").innerHTML="<b>먼저 읽을 것 — 이 평가가 가정 몇 개에 매달리는 까닭</b><p>"+D.적합성.글.join(" ")+"</p>";}
+
+// ═══ 결론(본편 1절의 결론 줄 — 본편 · 3분 레터와 같은 글) ═══
+const 자리말={값:"주당가치",가격:"종가가 전제한 것",갈림:"값을 가르는 가정",근거:"그 가정을 둔 근거",틀림:"먼저 틀릴 길과 신호"};
+(function(){
+  const 곳=$("결론"), 결=서&&서.결론;
+  if(!결||!(결.줄||[]).length){곳.innerHTML='<p class="cap">이 판에는 본편의 결론이 실리지 않았습니다.</p>'; return;}
+  곳.innerHTML=결.줄.map((z,i)=>'<div class="cl'+(i===0?" first":"")+'"><span class="cl-k">'+(자리말[z.자리]||"")+"</span><p>"+줄글(z.글)+"</p></div>").join("");
+  if(본편주소){$("본편링크").hidden=false; $("본편링크").innerHTML='결론은 <a href="'+막글(본편주소)+"#s"+결.번호+'">본편 '+결.번호+"절</a>의 글 그대로입니다. 근거와 계산은 "+'<a href="'+막글(본편주소)+'">본편 레터</a>에 모델을 세운 순서대로 있고, 아래 「모델 설계」 는 그 가운데 추정 구조부터 가치 브리지까지를 옮긴 것입니다.';}
+})();
+// ═══ Narrative(본편 Narrative 절 전부) ═══
+(function(){
+  const 곳=$("이야기"), 이=서&&서.이야기;
+  if(!이){곳.innerHTML='<p class="cap">이 판에는 본편의 Narrative 절이 실리지 않았습니다.</p>'; return;}
+  $("이야기제목").textContent=이.제목||"Narrative";
+  곳.innerHTML=(이.블록||[]).map(b=>블록글(b,이.번호)).join("")+본편로(이.번호);
+})();
+// ═══ 시나리오 서술(단추를 누르면 그 시나리오의 이름 · 세계 서술 · 관측 근거 · 표의 그 열) ═══
+const 시서=서&&서.시나리오;
+$("시나리오머리").innerHTML=시서?(시서.머리||[]).map(g=>"<p>"+줄글(g)+"</p>").join(""):"";
+function 시나리오보기(s){
+  const 곳=$("시나리오글"), 표곳=$("시나리오표");
+  if(!시서){곳.innerHTML='<p class="cap">이 판에는 본편의 시나리오 서술이 실리지 않았습니다.</p>'; 표곳.innerHTML=""; return;}
+  const w=(시서.세계||{})[s];
+  곳.innerHTML=w?('<h3>'+s+" 시나리오"+(w.이름?" 「"+줄글(w.이름)+"」":"")+"</h3>"+(w.세계?'<p class="world">'+줄글(w.세계)+"</p>":"")+
+    (w.관측?'<p class="obs"><span class="cl-k">관측 근거</span>'+줄글(w.관측)+"</p>":"")+(w.글||[]).map(g=>"<p>"+줄글(g)+"</p>").join("")):
+    '<p class="cap">본편에 이 시나리오의 서술이 없습니다.</p>';
+  표곳.innerHTML=(시서.표||[]).map(t=>{
+    const 열=t.열||{공통:[],기준:[],비관:[],낙관:[]}, 보일=s==="기준"?null:[].concat(열.공통,열.기준,열[s]||[]).sort((a,b)=>a-b), 표=표글(t.표,보일,열[s]||[]);
+    if(t.전파) return "<h3>"+줄글(t.소제목||"시나리오별 줄 변화와 그 까닭")+"</h3>"+(t.설명?'<p class="cap">'+줄글(t.설명)+"</p>":"")+표;
+    return '<details class="more"><summary>'+줄글(t.설명||t.소제목||"시나리오마다 다른 가정과 값")+"</summary>"+표+"</details>";
+  }).join("")+본편로(시서.번호);
+}
+
+// ═══ 헤드라인 오도미터 ═══
+function 오도(el,글){
+  const 옛=el.dataset.v||"";
+  const 같은꼴=옛.length===글.length&&[...옛].every((c,i)=>/\d/.test(c)===/\d/.test(글[i]));
+  if(!같은꼴){
+    el.innerHTML='<span class="od">'+[...글].map(c=>/\d/.test(c)?'<span class="col"><span class="strip">'+"0123456789".split("").map(d=>"<span>"+d+"</span>").join("")+'</span></span>':'<span class="fix">'+c+'</span>').join("")+'</span>';
+    [...el.querySelectorAll(".strip")].forEach(s=>{s.style.transition="none";});
+  }
+  const 줄=[...el.querySelectorAll(".strip")]; let k=0;
+  [...글].forEach(c=>{if(/\d/.test(c)){줄[k].style.transform="translateY(-"+(+c*1.2)+"em)"; k++;}});
+  if(!같은꼴) requestAnimationFrame(()=>줄.forEach(s=>{s.style.transition="";}));
+  el.dataset.v=글; el.setAttribute("aria-label",글);
+}
+const 시들=["비관","기준","낙관"].filter(s=>D.헤드.주당[s]!=null);
+function 헤드보기(s){
+  document.querySelectorAll("#시나리오단추 button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.s===s?"true":"false"));
+  오도($("od주당"),주당(D.헤드.주당[s])); 오도($("od주주"),금(D.헤드.주주[s])); 오도($("od영업"),금(D.헤드.영업[s]));
+  if(G.종가){$("종가말").textContent=종가말+" "+주당(G.종가)+" 대비"; 오도($("od종가"),Math.round(D.헤드.주당[s]/G.종가*100)+"%");}
+  시나리오보기(s);
+}
+시들.forEach(s=>{const b=document.createElement("button"); b.type="button"; b.textContent=s+" 시나리오"; b.dataset.s=s; b.addEventListener("click",()=>헤드보기(s)); $("시나리오단추").appendChild(b);});
+
+// ═══ 주요 가정 슬라이더(칸을 고른다 — 보간 없음) ═══
+// 가정마다 본편 가정 이름 · 그 가정이 온 Narrative 문장(서사 — 본편 부록의 「Narrative와 입력값」 · 항목 절의 Narrative 줄)
+const 손서=(서&&서.손잡이)||{};
+const 가정이름=k=>(손서[k]&&손서[k].이름)||H[k].이름;
+const 대상말=(k,t)=>{const m=(손서[k]&&손서[k].대상말)||{}; return t in m?m[t]:(H[k].대상이름||{})[t]||"";};
+const 보간말=x=>x===0?"기준 시나리오의 값":x===-1?"비관 시나리오의 값":x===1?"낙관 시나리오의 값":(x<0?"비관":"낙관")+" 쪽으로 기준과의 차이의 "+Math.abs(x)+"배";
+function 이야기줄(k){
+  const x=손서[k];
+  if(!x||!(x.서사||[]).length) return '<span class="cl-k">Narrative</span> 본편에 이 가정으로 이어진 Narrative 문장이 없습니다.';
+  return x.서사.map(z=>'<span class="cl-k">Narrative</span> '+줄글(z.글)+(z.입력값?(z.입력값!==x.이름?' <span class="muted">('+줄글(z.입력값)+")</span>":""):' <span class="muted">(이 가정이 든 '+줄글(z.곳)+"의 Narrative)</span>")).join("<br>");
+}
+function 범끝(k,v){const h=H[k]; if(h.꼴==="값") return 퍼(v,2); if(h.꼴==="정수가산") return v===0?"기준":(v>0?"+":"−")+Math.abs(v)+"년";
+  return v===0?"기준":(v>0?"+":"−")+(Math.abs(v)*100).toFixed(1)+"%p";}
+function 범위말(k){
+  const h=H[k], r=h.근거범위, 근=(손서[k]&&손서[k].근거)||"";
+  if(!r) return "칸은 기준 값 둘레로 옮겨 본 값입니다.";
+  if(h.꼴==="시나리오축"||h.꼴==="시나리오보간") return 근?"근거 범위는 "+근+".":"근거 범위는 비관 · 낙관 시나리오의 값 사이입니다.";
+  const 앞말=(h.꼴==="값"||r[0]===0||r[1]===0)?"":"기준에서 ";
+  return "근거 범위는 "+앞말+범끝(k,r[0])+"부터 "+범끝(k,r[1])+"까지입니다"+(근?"("+근+")":"")+".";
+}
+function 읽는값(k,i){
+  const h=H[k], x=h.표시[i];
+  if(h.꼴==="시나리오보간") return 보간말(h.눈금[i]);
+  if(h.꼴==="시나리오축"){const 배=G.지수눈금.배율; return h.대상.map(t=>대상말(k,t)+" "+(x&&x[t]!=null?(배===100?Math.round(x[t]*100):x[t].toFixed(2)):"–")).join(" · ");}
+  if(h.꼴==="정수가산"){const 본={}, 글=[]; for(const t of h.대상){const 말=대상말(k,t), v=x&&x[t]; if(본[말+v]) continue; 본[말+v]=1; 글.push(말+" "+v+"년");} return 글.join(" · ");}
+  const v=x&&x.값; return v==null?"–":퍼(v,h.꼴==="값"?2:1);
+}
+function 눈금글(k,i){
+  const h=H[k], x=h.눈금[i], b=h.기준;
+  if(h.꼴==="시나리오축"||h.꼴==="시나리오보간") return x===0?"기준":x===-1?"비관 값":x===1?"낙관 값":"";
+  if(h.꼴==="정수가산") return x===0?"기준":(x>0?"+":"−")+Math.abs(x)+"년";
+  const v=h.표시[i]&&h.표시[i].값; if(v==null) return "";
+  return (i===b?"기준 ":"")+퍼(v,h.꼴==="값"?2:1);
+}
+function 고른눈금(k,폭){
+  const h=H[k], n=h.눈금.length, step=폭/(n-1), 놓인=[];
+  const 칸=i=>{const x=i*step, w=글폭(눈금글(k,i)); return i===0?[x,x+w]:i===n-1?[x-w,x]:[x-w/2,x+w/2];};
+  const 겹=i=>놓인.some(j=>{const [a0,a1]=칸(i),[b0,b1]=칸(j); return a0<b1+4&&b0<a1+4;});
+  for(const i of [h.기준,0,n-1]) if(눈금글(k,i)&&!놓인.includes(i)&&!겹(i)) 놓인.push(i);
+  for(let i=0;i<n;i++) if(눈금글(k,i)&&!놓인.includes(i)&&!겹(i)) 놓인.push(i);
+  return 놓인;
+}
+function 값에서위치(k,v){const t=H[k].눈금,n=t.length; if(v<=t[0]) return 0; if(v>=t[n-1]) return n-1; for(let i=0;i<n-1;i++) if(v<=t[i+1]+1e-12) return i+(v-t[i])/(t[i+1]-t[i]); return n-1;}
+function 범위안(k,i){const r=H[k].근거범위; if(!r) return true; const v=H[k].눈금[i]; return v>=r[0]-1e-9&&v<=r[1]+1e-9;}
+const pos={}; let 활성=짝[0]||순서[0];
+const 벗어남=k=>pos[k]!==H[k].기준;
+function 지금결과(){
+  const 옮긴=순서.filter(벗어남);
+  if(!옮긴.length) return {r:G.기준};
+  if(짝.length&&옮긴.every(k=>짝.includes(k))){const r=G.짝.결과[pos[G.짝.세로]][pos[G.짝.가로]]; return r.막힘?{막힘:r.막힘}:{r};}
+  const k=옮긴[0], r=H[k].결과[pos[k]]; return r.막힘?{막힘:r.막힘}:{r};
+}
+for(const k of 순서){
+  const h=H[k], n=h.눈금.length; pos[k]=h.기준;
+  const d=document.createElement("div"); d.className="knob"; d.dataset.k=k;
+  const r=h.근거범위, lo=r?값에서위치(k,r[0])/(n-1)*100:0, hi=r?값에서위치(k,r[1])/(n-1)*100:100;
+  let ticks=""; for(let i=0;i<n;i++) ticks+=`<span class="tick${i===h.기준?" base":""}${h.결과[i].막힘?" block":""}" style="left:${i/(n-1)*100}%"></span>`;
+  d.innerHTML=`<div class="knob-head"><span class="knob-name"><span id="n-${k}"></span>${손서[k]&&손서[k].지렛대?'<span class="tag">값을 가르는 가정</span>':""}</span><span class="knob-val num" id="v-${k}"></span></div>
+    <p class="knob-story" id="s-${k}"></p>
+    <div class="range"><span class="track"></span>${r?`<span class="bandbar" style="left:${lo}%;width:${hi-lo}%"></span>`:""}${ticks}
+      <input type="range" min="0" max="${n-1}" step="1" value="${h.기준}" id="r-${k}"></div>
+    <div class="labels" id="l-${k}"></div><p class="knob-band" id="b-${k}"></p><p class="knob-res num" id="m-${k}"></p>`;
+  (document.getElementById("ix-knobs-"+((손서[k]||{}).절||""))||$("knobs")).appendChild(d); /* 합본 — 그 가정의 절 안 자리(없으면 한 묶음) */ $("n-"+k).textContent=가정이름(k); $("s-"+k).innerHTML=이야기줄(k); d.querySelector("input").setAttribute("aria-labelledby","n-"+k);
+  d.querySelector("input").addEventListener("input",e=>{
+    pos[k]=+e.target.value; 활성=k; let 되돌림=false;
+    for(const o of 순서){ if(o===k||!벗어남(o)) continue; if(짝.includes(k)&&짝.includes(o)) continue; pos[o]=H[o].기준; $("r-"+o).value=H[o].기준; 되돌림=true; }
+    모션끝(); 그리기(되돌림);
+  });
+}
+$("가정제목").textContent="주요 가정 "+(한수[순서.length]||순서.length)+"을 움직여 보기";
+$("가정설명").textContent="평가 모델이 주당가치를 크게 움직인다고 추린 가정입니다. 가정마다 그 가정이 온 Narrative 문장을 본편에서 옮겨 적었습니다. 슬라이더의 칸마다 평가 모델이 미리 계산한 값이 있고, 슬라이더는 그 칸만 고릅니다."+(짝.length?" "+가정이름(짝[0])+"과(와) "+가정이름(짝[1])+"은(는) 함께 옮긴 칸도 계산해 두었습니다.":"");
+$("reset").addEventListener("click",()=>{for(const k of 순서){pos[k]=H[k].기준; $("r-"+k).value=H[k].기준;} 활성=짝[0]||순서[0]; 모션끝(); 그리기(false);});
+
+function 곡선(k,지금){
+  const svg=$("curve"); if(!k){svg.innerHTML=""; return;}
+  const W=Math.max(300,$("curveBox").clientWidth), Hh=Math.round(Math.min(280,Math.max(210,W*0.4)));
+  svg.setAttribute("viewBox",`0 0 ${W} ${Hh}`); svg.innerHTML="";
+  const h=H[k], n=h.눈금.length, m={l:48,r:12,t:16,b:30};
+  let 주=h.결과.map(r=>r.막힘?null:r.주), 유령=null; const 다른=짝.includes(k)?짝.find(x=>x!==k):null;
+  if(다른&&벗어남(다른)){유령=주.slice(); 주=k===G.짝.세로?G.짝.결과.map(row=>row[pos[G.짝.가로]].막힘?null:row[pos[G.짝.가로]].주):G.짝.결과[pos[G.짝.세로]].map(r=>r.막힘?null:r.주);}
+  const vals=[G.종가||0].concat(주.filter(v=>v!=null),유령?유령.filter(v=>v!=null):[]);
+  const top=Math.max(...vals)*1.08, bot=Math.min(0,...vals)*1.08;
+  const X=i=>m.l+(W-m.l-m.r)*i/(n-1), Y=v=>m.t+(Hh-m.t-m.b)*(top-v)/(top-bot);
+  const r=h.근거범위; if(r){const a=X(값에서위치(k,r[0])), b=X(값에서위치(k,r[1])); el(svg,"rect",{x:a,y:m.t,width:Math.max(2,b-a),height:Hh-m.t-m.b,fill:"var(--band)"});}
+  for(const g of 눈(bot,top,4)){el(svg,"line",{x1:m.l,x2:W-m.r,y1:Y(g),y2:Y(g),class:"grid"}); el(svg,"text",{x:m.l-6,y:Y(g)+4,"text-anchor":"end",class:"t-tick"},g===0?"0":주당축(g));}
+  for(const i of 고른눈금(k,W-m.l-m.r)) el(svg,"text",{x:X(i),y:Hh-m.b+16,"text-anchor":i===0?"start":i===n-1?"end":"middle",class:"t-tick"},눈금글(k,i));
+  if(G.종가){el(svg,"line",{x1:m.l,x2:W-m.r,y1:Y(G.종가),y2:Y(G.종가),stroke:"var(--ink)","stroke-width":1.5,"stroke-dasharray":"5 4"});
+    el(svg,"text",{x:m.l+4,y:Y(G.종가)-6,class:"t-label"},종가말+" "+주당(G.종가));}
+  const 선=(arr,attrs)=>{let s="",끊김=true; for(let i=0;i<n;i++){if(arr[i]==null){끊김=true;continue;} s+=(끊김?"M":"L")+X(i).toFixed(1)+","+Y(arr[i]).toFixed(1); 끊김=false;} el(svg,"path",Object.assign({d:s,fill:"none"},attrs));};
+  if(유령) 선(유령,{stroke:"var(--ghost)","stroke-width":2,"stroke-dasharray":"5 4"});
+  선(주,{stroke:"var(--series-1)","stroke-width":2});
+  for(let i=0;i<n;i++){
+    if(h.결과[i].막힘&&!유령){el(svg,"path",{d:`M${X(i)-5},${Y(0)-5}l10,10M${X(i)+5},${Y(0)-5}l-10,10`,stroke:"var(--flag)","stroke-width":2}); continue;}
+    if(주[i]!=null) el(svg,"circle",{cx:X(i),cy:Y(주[i]),r:i===pos[k]?6:4,fill:i===pos[k]?(범위안(k,i)?"var(--series-1)":"var(--flag)"):"var(--series-1)",stroke:"var(--paper)","stroke-width":2});
+  }
+  if(지금.r){const cx=X(pos[k]), 왼=cx>W*0.6; el(svg,"text",{x:cx+(왼?-9:9),y:Y(지금.r.주)-9,"text-anchor":왼?"end":"start",class:"t-strong"},주당(지금.r.주));}
+  $("cTitle").textContent=가정이름(k)+"에 따른 주당가치";
+  $("lgGhost").hidden=!유령;
+}
+
+// ═══ 모션 무대 — 매출 구분 · FCFF · 현재가치 · 영구가치 · 다리(처음은 다 된 그림 · 단계마다 넘긴다 · 사이 값 숫자 없음) ═══
+const 창=(t,a,b)=>t<=a?0:t>=b?1:(t-a)/(b-a);
+const n1=G.칸.length, n2=G.모열.length, K=G.흐름수;
+function 다된(){return {p1:Array(n1).fill(1),a2:1,c:Array(n2).fill(3),z:1,fl:1,dsc:Array(n2).fill(1),sl:1,st:Array(K).fill(1),fm:1,mg:1,w:Array(60).fill(1),rs:1};}
+function 빈(){return {p1:Array(n1).fill(0),a2:0,c:Array(n2).fill(0),z:0,fl:0,dsc:Array(n2).fill(0),sl:0,st:Array(K).fill(0),fm:0,mg:0,w:Array(60).fill(0),rs:0};}
+let S=다된(), 단계=-1, 재생=null; const 펼침={};
+function 다리누적(m){const out=[m.합,m.합+m.TV.현가]; let s=m.합+m.TV.현가; for(const x of m.조정){s+=x[1]; out.push(s);} out.push(m.영업); s=m.영업; for(const x of m.더뺌){s+=x[1]; out.push(s);} out.push(m.주주); return out;}
+let 축1,축2매출,축2,축2아래,다리위,다리아래;
+function 축정하기(r){const 견=[G.기준.모].concat(r?[r.모]:[]); const 최=f=>Math.max(0,...견.map(f)), 소=f=>Math.min(0,...견.map(f));
+  축1=최(m=>Math.max(...m.쌓기.map(a=>a.reduce((s,v)=>s+Math.max(0,v),0)))); 축2매출=최(m=>Math.max(...m.단계.map(a=>a[0])));
+  축2=최(m=>Math.max(...m.F,m.TV.현가,...m.명목)); 축2아래=소(m=>Math.min(...m.F,...m.단계.map(a=>a[3]))); 다리위=최(m=>Math.max(...다리누적(m))); 다리아래=소(m=>Math.min(...다리누적(m)));}
+const 단계목록=[
+  {이름:"매출 구분별 추정",글:()=>`해마다 매출이 매출 구분(${G.잎.join(" · ")})별로 쌓입니다. 회색은 실적입니다.`,길이:()=>350+n1*200+500,갱신:(t,D_)=>{for(let i=0;i<n1;i++) S.p1[i]=창(t*D_,i*200,i*200+520);}},
+  {이름:"매출에서 FCFF까지",글:()=>"해마다 매출에서 영업비용을 빼면 영업이익, 법인세를 빼면 세후 영업이익(NOPLAT), 재투자(CAPEX · 운전자본 증가 − 감가상각비)를 빼면 남는 현금(FCFF)입니다.",
+   길이:()=>350+(n2-1)*140+1650+650,갱신:(t,D_)=>{const ms=t*D_; S.a2=창(ms,0,300); for(let i=0;i<n2;i++) S.c[i]=3*창(ms,350+i*140,350+i*140+1650); S.z=창(ms,350+(n2-1)*140+1650,350+(n2-1)*140+2250); S.fl=창(ms,D_-200,D_);}},
+  {이름:"현재가치로",글:()=>"해마다의 FCFF를 "+(재무날?"재무 자료 기준일":"평가기준일")+"의 돈으로 바꿉니다. 멀리 있는 해일수록 많이 줄어듭니다. 점선이 바꾸기 전입니다.",길이:()=>(n2-1)*150+1000,갱신:(t,D_)=>{const ms=t*D_; for(let i=0;i<n2;i++) S.dsc[i]=창(ms,i*150,i*150+700); S.sl=창(ms,D_-250,D_);}},
+  {이름:"영구가치",글:()=>`${G.영구열.replace("~","")}부터는 FCFF가 영구성장률만큼 끝없이 자랍니다. 그러나 멀리 갈수록 현재가치는 작아집니다.`,길이:()=>(K-1)*110+680,갱신:(t,D_)=>{const ms=t*D_; for(let k=0;k<K;k++) S.st[k]=창(ms,k*110,k*110+380); S.fm=창(ms,D_-250,D_);}},
+  {이름:"영구가치 모으기",글:()=>"끝없는 흐름의 현재가치를 모두 더하면 영구가치의 현재가치입니다. 그린 해 뒤의 몫은 빗금입니다.",길이:()=>1300,갱신:t=>{S.mg=이징(t);}},
+  {이름:"주당가치까지",글:()=>"현재가치의 합에 조정을 더하면 영업가치, 비영업자산과 현금을 더하고 부채를 빼면 주주가치, 주식수로 나누면 주당가치입니다. 현금과 이자부부채 줄을 누르면 세부가 펼쳐집니다.",
+   길이:()=>다리줄수()*330+750,갱신:(t,D_)=>{const ms=t*D_; for(let j=0;j<60;j++) S.w[j]=창(ms,j*330,j*330+450); S.rs=창(ms,D_-250,D_);}},
+];
+function 다리줄수(){const m=(지금결과().r||G.기준).모; return 4+m.조정.length+m.더뺌.length;}
+function 모션그리기(r){
+  const 막=!r; ["p1Box","p2Box","p3Box"].forEach(id=>$(id).style.opacity=막?.35:1);
+  if(막){["p1","p2","p3"].forEach(id=>$(id).innerHTML=""); $("p2F").textContent=""; $("p3R").innerHTML="<span class='sm'>계산이 막힌 가정이라 그리지 않습니다.</span>"; return;}
+  축정하기(r); 판1(r.모); 판2(r.모); 판3(r.모);
+}
+function 판1(m){
+  const svg=$("p1"), W=Math.max(300,$("p1Box").clientWidth), Hh=Math.round(Math.min(250,Math.max(190,W*0.34)));
+  svg.setAttribute("viewBox",`0 0 ${W} ${Hh}`); svg.innerHTML="";
+  const M={l:44,r:8,t:16,b:26}, bw=(W-M.l-M.r)/n1, w=Math.min(30,bw*0.62);
+  const X=i=>M.l+bw*i+bw/2, Y=v=>M.t+(Hh-M.t-M.b)*(1-v/(축1*1.08||1));
+  for(const g of 눈(0,축1*1.08,4)){el(svg,"line",{x1:M.l,x2:W-M.r,y1:Y(g),y2:Y(g),class:"grid"}); el(svg,"text",{x:M.l-6,y:Y(g)+4,"text-anchor":"end",class:"t-tick"},금수(g));}
+  el(svg,"line",{x1:M.l,x2:W-M.r,y1:Y(0),y2:Y(0),class:"axis"});
+  const 합=m.쌓기.map(a=>a.reduce((s,v)=>s+v,0)), 첫추정=G.칸.findIndex(c=>c.추정);
+  const 표=new Set([첫추정-1,합.indexOf(Math.max(...합.slice(Math.max(0,첫추정)))),n1-2,n1-1].filter(i=>i>=0));
+  const 말들=칸글들(G.칸.map(c=>c.이름==="영구"?G.영구열:c.이름+(c.실적&&c.추정?"*":"")),bw);
+  G.칸.forEach((c,i)=>{ if(말들[i]) el(svg,"text",{x:X(i),y:Hh-M.b+15,"text-anchor":"middle",class:"t-tick"},말들[i]);
+    const p=S.p1[i]; if(p<=0) return; const 조=m.쌓기[i], 총=조.reduce((s,v)=>s+Math.max(0,v),0)||1; let 누=0;
+    조.forEach((v,j)=>{ if(v<=0) return; const a=누/총, b=(누+v)/총; 누+=v; const q=이징(창(p,a,b)); if(q<=0) return;
+      el(svg,"path",{d:바(X(i)-w/2,w,Y(a*총),Y(a*총+v*q)+(b>=0.999?0:1)),fill:j===0?"var(--actual)":(j===조.length-1?"var(--ghost)":색(j-1))});});
+    if(p>=1&&표.has(i)) el(svg,"text",{x:X(i),y:Y(총)-5,"text-anchor":"middle",class:"t-label"},금수(합[i]));});
+  const tip=$("tipP1"), hit=el(svg,"rect",{x:M.l,y:0,width:W-M.l-M.r,height:Hh,fill:"transparent"});
+  hit.addEventListener("mousemove",e=>{const bx=svg.getBoundingClientRect(), i=Math.max(0,Math.min(n1-1,Math.floor(((e.clientX-bx.left)*W/bx.width-M.l)/bw)));
+    const 조=m.쌓기[i], 줄=[]; if(조[0]>0) 줄.push("실적 "+금(조[0])); G.잎.forEach((이,j)=>{if(조[j+1]>0) 줄.push(이+" "+금(조[j+1]));}); if(조[조.length-1]>0) 줄.push("그 밖의 매출 "+금(조[조.length-1]));
+    팁(tip,$("p1Box"),X(i)*bx.width/W,Y(합[i])*bx.height/Hh,`<b>${G.칸[i].이름==="영구"?G.영구열:G.칸[i].이름} · ${금(합[i])}</b><br>${줄.join("<br>")}`);});
+  hit.addEventListener("mouseleave",()=>tip.hidden=true);
+  $("p1Title").textContent="매출 구분별 매출액 ("+G.단위.글+")";
+  $("p1Leg").innerHTML=`<span><i class="sw" style="background:var(--actual)"></i>실적</span>`+G.잎.map((이,j)=>`<span><i class="sw" style="background:${색(j)}"></i>${이}</span>`).join("")+
+    (m.쌓기.some(a=>a[a.length-1]>0)?`<span><i class="sw" style="background:var(--ghost)"></i>그 밖의 매출</span>`:"")+(G.칸.some(c=>c.실적&&c.추정)?`<span style="color:var(--muted)">* 실적과 추정을 더한 해</span>`:"");
+}
+function 판2(m){
+  const svg=$("p2"), W=Math.max(300,$("p2Box").clientWidth), Hh=Math.round(Math.min(300,Math.max(220,W*0.42)));
+  svg.setAttribute("viewBox",`0 0 ${W} ${Hh}`); svg.innerHTML="";
+  const M={l:44,r:8,t:28,b:30}, 앞폭=(W-M.l-M.r)*0.58, 뒤x=M.l+앞폭+14, 뒤폭=W-M.r-뒤x, bw=앞폭/n2, w=Math.min(30,bw*0.6);
+  const 위=축2매출+(축2-축2매출)*이징(S.z), top=위*1.1||1, bot=축2아래<0?축2아래*1.15:0;
+  const X=i=>M.l+bw*i+bw/2, Y=v=>M.t+(Hh-M.t-M.b)*(top-v)/(top-bot);
+  for(const g of 눈(bot,top,4)){el(svg,"line",{x1:M.l,x2:W-M.r,y1:Y(g),y2:Y(g),class:"grid"}); el(svg,"text",{x:M.l-6,y:Y(g)+4,"text-anchor":"end",class:"t-tick"},금수(g));}
+  el(svg,"line",{x1:M.l,x2:W-M.r,y1:Y(0),y2:Y(0),class:"axis"});
+  el(svg,"line",{x1:뒤x-7,x2:뒤x-7,y1:M.t-18,y2:Hh-M.b+4,stroke:"var(--rule-2)","stroke-dasharray":"2 3"});
+  const c0=Math.min(...S.c), 단말=["매출액","영업이익","NOPLAT","FCFF"][Math.max(0,Math.min(3,Math.round(c0)))]+(S.dsc.some(v=>v>0)?" 현재가치":"");
+  if(S.a2>0){el(svg,"text",{x:M.l,y:13,class:"t-strong",opacity:S.a2},"예측기간: "+단말); el(svg,"text",{x:뒤x,y:13,class:"t-strong",opacity:S.st[0]>0?1:.35},"영구 "+G.영구열);}
+  칸글들(G.모열,bw).forEach((이,i)=>{if(이) el(svg,"text",{x:X(i),y:Hh-M.b+15,"text-anchor":"middle",class:"t-tick"},이);});
+  for(let i=0;i<n2;i++){ if(S.a2<=0) break;
+    const L=m.단계[i], c=S.c[i], k=Math.min(2,Math.floor(c)), f=이징(c-k); let v=c>=3?L[3]:L[k]+(L[k+1]-L[k])*f;
+    const 할=S.dsc[i], pv=m.현가[i], F=m.F[i];
+    if(할>0){v=F+(pv-F)*이징(할); el(svg,"path",{d:바(X(i)-w/2-2,w+4,Y(0),Y(F)),fill:"none",stroke:"var(--ghost)","stroke-width":1.5,"stroke-dasharray":"4 3"});}
+    else if(c<3) el(svg,"path",{d:바(X(i)-w/2,w,Y(0),Y(L[0])),fill:"none",stroke:"var(--rule-2)","stroke-width":1,opacity:S.a2});
+    el(svg,"path",{d:바(X(i)-w/2,w,Y(0),Y(v)),fill:"var(--series-1)",opacity:(0.3+0.7*Math.min(1,c/3))*S.a2});
+    if(S.fl>0){const 값=할>=1?pv:(할>0?null:F); if(값!=null) el(svg,"text",{x:X(i),y:(값>=0?Y(값)-5:Y(값)+13),"text-anchor":"middle",class:"t-label",opacity:S.fl},금수(값));}
+  }
+  if(S.sl>0) el(svg,"text",{x:M.l+앞폭,y:M.t+12,"text-anchor":"end",class:"t-label",opacity:S.sl},"현재가치 합 "+금(m.합));
+  const 칸폭=뒤폭/(K+3), sw=Math.max(3,칸폭*0.62), 블w=Math.min(30,뒤폭*0.22), 블x=W-M.r-블w; let 누=0;
+  for(let k=0;k<K;k++){ const s=S.st[k]; if(s<=0) continue; const pv=m.흐름[k], nm=m.명목[k], x0=뒤x+칸폭*k, y0=Y(0), mg=S.mg;
+    const xx=x0+(블x+(블w-sw)/2-x0)*mg, 바닥=y0+(Y(누)-y0)*mg, h=(Y(0)-Y(pv))*이징(s);
+    if(mg<1) el(svg,"path",{d:바(x0,sw,y0,Y(nm)),fill:"none",stroke:"var(--ghost)","stroke-width":1,"stroke-dasharray":"3 2",opacity:(1-mg)*s*.8});
+    el(svg,"rect",{x:xx,y:바닥-h,width:sw+(블w-sw)*mg,height:Math.max(0,h-(mg>0?0.6:0)),fill:"var(--series-1)",opacity:(0.85-0.5*k/K)*(1-mg)+mg*0.85}); 누+=pv;}
+  if(S.st[K-1]>0&&S.mg<1) el(svg,"text",{x:뒤x+칸폭*K+2,y:Y(0)-6,class:"t-tick",opacity:1-S.mg},"…");
+  if(S.mg>0){const 남=m.TV.현가-누;
+    if(남>0){const y0=Y(누), y1=Y(누+남*창(S.mg,.55,1)); const d=el(svg,"defs",{}); const p=el(d,"pattern",{id:"hatch",width:5,height:5,patternUnits:"userSpaceOnUse",patternTransform:"rotate(45)"});
+      el(p,"rect",{width:5,height:5,fill:"var(--band)"}); el(p,"line",{x1:0,y1:0,x2:0,y2:5,stroke:"var(--series-1)","stroke-width":1.4}); el(svg,"rect",{x:블x,y:y1,width:블w,height:Math.max(0,y0-y1),fill:"url(#hatch)"});}
+    if(S.mg>=1){el(svg,"text",{x:블x-6,y:Y(m.TV.현가)+4,"text-anchor":"end",class:"t-strong"},금(m.TV.현가)); el(svg,"text",{x:블x-6,y:Y(m.TV.현가)+18,"text-anchor":"end",class:"t-tick"},"영구가치의 현재가치");}}
+  const T=m.TV; $("p2F").style.opacity=S.fm;
+  $("p2F").innerHTML=`영구가치 = ${G.영구열.replace("~","")} FCFF ${금(T.F)} ÷ (WACC ${퍼(T.W,2)} − 영구성장률 ${퍼(T.g,2)}) = <b>${금(T.V)}</b> · 현재가치 = ${금(T.V)} × 현가계수 ${T.계수.toFixed(4)} = <b>${금(T.현가)}</b>`;
+  const tip=$("tipP2"), hit=el(svg,"rect",{x:M.l,y:0,width:앞폭,height:Hh,fill:"transparent"});
+  hit.addEventListener("mousemove",e=>{const bx=svg.getBoundingClientRect(), i=Math.max(0,Math.min(n2-1,Math.floor(((e.clientX-bx.left)*W/bx.width-M.l)/bw))), L=m.단계[i];
+    팁(tip,$("p2Box"),X(i)*bx.width/W,Y(Math.max(0,m.F[i]))*bx.height/Hh,`<b>${G.모열[i]}</b><br>매출액 ${금(L[0])}<br>영업이익 ${금(L[1])}<br>NOPLAT ${금(L[2])}<br>FCFF ${금(m.F[i])}<br>현가계수 ${m.계수[i].toFixed(4)} · 현재가치 ${금(m.현가[i])}`);});
+  hit.addEventListener("mouseleave",()=>tip.hidden=true);
+  $("p2Title").textContent="해마다의 FCFF · 현재가치 · 영구가치 ("+G.단위.글+")";
+}
+function 판3(m){
+  const 드=G.드릴||{};
+  let 줄=[["예측기간 FCFF 현재가치 합",m.합,"더"],["(+) 영구가치의 현재가치",m.TV.현가,"더"]].concat(m.조정.map(x=>[x[0],x[1],"더"]),[["영업가치",m.영업,"합"]]);
+  for(const x of m.더뺌){ const 키=x[2], 세=키==="60"?드.현금성:키==="61"?드.이자부부채:null; 줄.push([x[0]+(세&&세.length?(펼침[키]?" ▾":" ▸"):""),x[1],"더",키]);
+    if(세&&펼침[키]) for(const s of 세) 줄.push(["· "+s.이름,(키==="61"?-1:1)*s.값,"세",null]); }
+  줄.push(["주주가치",m.주주,"합"]);
+  const svg=$("p3"), W=Math.max(300,$("p3Box").clientWidth), 행=24, Hh=줄.length*행+18;
+  svg.setAttribute("viewBox",`0 0 ${W} ${Hh}`); svg.innerHTML="";
+  const 좁=W<520, 이름폭=좁?0:Math.min(220,W*0.38), 값폭=64, x0=이름폭+(좁?0:8), x1=W-값폭, lo=Math.min(0,다리아래), hi=다리위*1.04||1;
+  const X=v=>x0+(x1-x0)*(v-lo)/(hi-lo); el(svg,"line",{x1:X(0),x2:X(0),y1:2,y2:Hh-14,class:"axis"});
+  let 누=0, j=0, 세누=0;                                // 세부 줄은 부모 줄의 시작점부터 쌓는다(부모를 나눈 것이다)
+  줄.forEach(z=>{ const [말,v,꼴,키]=z, y=8+j*행, 높=좁?9:13, yb=좁?y+12:y+4, s=꼴==="세"?1:S.w[j];
+    if(키==="60"||키==="61") 세누=누;
+    const 시작=꼴==="합"?0:(꼴==="세"?세누:누), 끝=꼴==="합"?v:(꼴==="세"?세누+v:누+v); if(꼴==="세") 세누+=v;
+    const t=좁?el(svg,"text",{x:0,y:y+8,class:꼴==="합"?"t-strong":"t-label",opacity:s>0?1:.3},말):el(svg,"text",{x:이름폭,y:yb+높-2,"text-anchor":"end",class:꼴==="합"?"t-strong":"t-label",opacity:s>0?1:.3},말);
+    if(키==="60"||키==="61"){t.setAttribute("class",t.getAttribute("class")+" drill"); t.addEventListener("click",()=>{if(단계>=0&&재생) return; 펼침[키]=!펼침[키]; 모션그리기(지금결과().r);});}
+    if(s>0){const q=이징(s), a=X(시작), b=X(시작+(끝-시작)*q);
+      el(svg,"rect",{x:Math.min(a,b),y:yb,width:Math.max(1,Math.abs(b-a)),height:꼴==="세"?높*0.6:높,rx:2,fill:꼴==="합"?"var(--ink-2)":(v>=0?"var(--series-1)":"var(--flag)"),opacity:꼴==="세"?0.55:1});
+      if(s>=1) el(svg,"text",{x:W,y:yb+높-2,"text-anchor":"end",class:꼴==="합"?"t-strong":"t-label"},(꼴!=="합"&&v>0&&j>0?"+":"")+금수(v));}
+    if(꼴==="합") 누=v; else if(꼴!=="세") 누+=v; j++; });
+  $("p3Title").textContent="영업가치에서 주당가치까지 ("+G.단위.글+")";
+  $("p3Cap").textContent=(드.현금성&&드.현금성.length)||(드.이자부부채&&드.이자부부채.length)?"현금 · 이자부부채 줄을 누르면 세부가 펼쳐집니다(기준 시나리오의 "+(재무날?"재무 자료 기준일":"평가기준일")+" 잔액).":"";
+  const r=$("p3R"); r.style.opacity=S.rs;
+  r.innerHTML=`<div class="sm">주주가치 ${금(m.주주)} ÷ 적용 주식수 ${Math.round(m.주식).toLocaleString("ko-KR")}주</div><div class="big num">이 가정들에서 계산한 주당가치 ${주당(m.주당)}</div>`+(G.종가?`<div class="sm">${종가말} ${주당(G.종가)}의 ${Math.round(m.주당/G.종가*100)}%</div>`:"");
+}
+function 단추(){const 다=단계<0||단계>=단계목록.length-1; $("mPlay").hidden=단계>=0&&단계<단계목록.length-1; $("mNext").hidden=다; $("mEnd").hidden=단계<0;
+  if(!다) $("mNext").textContent=`다음 (${단계+2}/${단계목록.length})`; $("mPlay").textContent=단계<0?"순서대로 보기":"처음부터 다시";}
+function 글보이기(){ if(단계<0){$("mCap").innerHTML="<b>다 된 그림</b> · 매출이 구분별로 쌓이고, FCFF와 그 현재가치, 영구가치를 거쳐 주당가치에 이릅니다. 「순서대로 보기」를 누르면 한 단계씩 움직입니다."; return;}
+  const s=단계목록[단계]; $("mCap").innerHTML=`<b>${단계+1}/${단계목록.length} · ${s.이름}</b> · ${s.글()}`;}
+function 단계재생(i){단계=i; 글보이기(); 단추(); const s=단계목록[i], D_=s.길이(), r=지금결과().r; if(재생) 재생.멈춤();
+  재생=시계(D_,t=>{s.갱신(t,D_); 모션그리기(r);},()=>{재생=null;});}
+function 마저(){ if(!재생) return; 재생.멈춤(); 재생=null; 단계목록[단계].갱신(1,단계목록[단계].길이()); }
+function 모션끝(){ if(재생){재생.멈춤(); 재생=null;} S=다된(); 단계=-1; 글보이기(); 단추(); }
+$("mPlay").addEventListener("click",()=>{S=빈(); 단계재생(0);});
+$("mNext").addEventListener("click",()=>{마저(); 단계재생(Math.min(단계+1,단계목록.length-1));});
+$("mEnd").addEventListener("click",()=>{모션끝(); 모션그리기(지금결과().r);});
+
+// ═══ 슬라이더 판 그리기 ═══
+function 그리기(되돌림){
+  const 지금=지금결과(), 기준=G.기준.주;
+  for(const k of 순서){ const d=document.querySelector(`.knob[data-k="${k}"]`), 안=범위안(k,pos[k]);
+    d.classList.toggle("moved",벗어남(k)); d.classList.toggle("out",!안); $("v-"+k).textContent=읽는값(k,pos[k]);
+    $("b-"+k).innerHTML=`<b>${H[k].근거범위?(안?"근거 범위 안":"근거 범위 밖"):"근거 범위를 정하지 않은 가정"}</b> · ${막글(범위말(k))}`;
+    const lb=$("l-"+k), n=H[k].눈금.length; lb.innerHTML=고른눈금(k,lb.clientWidth||300).map(i=>`<span class="${i===0?"first":i===n-1?"last":""}" style="left:${i/(n-1)*100}%">${눈금글(k,i)}</span>`).join(""); }
+  const chip=$("chip"), err=$("err"); chip.className="chip"; err.hidden=true;
+  if(지금.막힘){ $("hNum").textContent="계산하지 않음"; $("hSub").textContent=G.종가?종가말+" "+주당(G.종가):""; chip.classList.add("block"); chip.textContent="계산이 막힌 가정";
+    err.hidden=false; err.textContent="막힌 까닭: "+지금.막힘; ["kW","kTV","kOM","kD"].forEach(id=>$(id).textContent="–"); }
+  else { const r=지금.r; $("hNum").textContent=주당(r.주); $("hSub").textContent=G.종가?종가말+" "+주당(G.종가)+"의 "+Math.round(r.주/G.종가*100)+"%":"";
+    chip.textContent="미리 계산한 칸"; $("kW").textContent=퍼(r.W,2); $("kTV").textContent=퍼(r.TV비중,1); $("kOM").textContent=퍼(r.TV이익률,1);
+    const 차=r.주/기준-1; $("kD").textContent=Math.abs(차)<5e-5?"같음":부호(차); }
+  for(const k of 순서){ const 짝임=짝.includes(k)&&짝.includes(활성), 이=(k===활성||짝임)&&!지금.막힘?지금.r:(H[k].결과[pos[k]].막힘?null:H[k].결과[pos[k]]);   // 합본 — 카드마다 이 칸의 주당가치
+    $("m-"+k).textContent=이?"이 칸의 주당가치 "+주당(이.주)+" · 기준 시나리오 대비 "+(Math.abs(이.주/기준-1)<5e-5?"같음":부호(이.주/기준-1)):"계산하지 않음"; }
+  $("note").textContent=(되돌림?"다른 가정은 기준 시나리오로 되돌렸습니다. ":"")+"미리 계산한 격자는 한 번에 한 가정씩"+(짝.length?"(앞의 두 가정은 함께)":"")+" 담았습니다.";
+  모션그리기(지금.r||null); 곡선(활성,지금);
+}
+
+// ═══ WACC와 영구 가정의 격자(표1 · 표2 — 칸을 고른다) ═══
+const 표들=[["표1",G.표1],["표2",G.표2]].filter(x=>x[1]&&x[1].값);
+let 지금표=표들.length?표들[0][0]:null;
+const 칸칸={표1:{},표2:{}};
+function 표보기(키){
+  지금표=키; const T=G[키]; document.querySelectorAll("#표단추 button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.t===키?"true":"false"));
+  const 가=$("가로"), 세=$("세로"); 가.max=T.가로값.length-1; 세.max=T.세로값.length-1;
+  const 저장=칸칸[키]; 가.value=저장.j!=null?저장.j:T.기준칸[1]; 세.value=저장.i!=null?저장.i:T.기준칸[0];
+  $("가로이름").textContent=T.가로이름; $("세로이름").textContent=T.세로이름; 히트(); 칸보기();
+}
+function 히트(){
+  const T=G[지금표], 수=[].concat(...T.값).filter(v=>typeof v==="number"), lo=Math.min(...수), hi=Math.max(...수);
+  const 좁=$("heat").parentNode.clientWidth<600;                 // 좁으면 칸은 색만(고른 칸 값은 위 상자에) · 머리 숫자는 % 없이
+  const 세로글=v=>좁?(v*100).toFixed(1):퍼(v,1), 가로글=v=>좁?(v*100).toFixed(1):퍼(v,2);
+  let h="<thead><tr><th>"+(좁?"":T.세로이름.replace("영구기간 ","")+" \\ WACC")+"</th>"+T.가로값.map(v=>"<th>"+가로글(v)+"</th>").join("")+"</tr></thead><tbody>";
+  T.값.forEach((줄,i)=>{h+="<tr><th>"+세로글(T.세로값[i])+"</th>"+줄.map((v,j)=>{
+    if(typeof v!=="number") return `<td class="blocked${i===T.기준칸[0]&&j===T.기준칸[1]?" base":""}" data-i="${i}" data-j="${j}" title="계산이 막힌 칸">${좁?"":"✕"}</td>`;
+    const t=hi>lo?(v-lo)/(hi-lo):0.5; return `<td class="${t>0.55?"dark":""}${i===T.기준칸[0]&&j===T.기준칸[1]?" base":""}" data-i="${i}" data-j="${j}" style="background:color-mix(in srgb,var(--heat-hi) ${Math.round(t*100)}%,var(--heat-lo))" title="${주당(v)}">${좁?"":주당축(v)}</td>`;}).join("")+"</tr>";});
+  $("heat").innerHTML=h+"</tbody>";
+  $("heat").querySelectorAll("td").forEach(td=>td.addEventListener("click",()=>{$("세로").value=td.dataset.i; $("가로").value=td.dataset.j; 칸보기();}));
+  $("heatCap").textContent="칸마다 그 WACC와 "+T.세로이름+"에서 평가 모델이 계산한 주당가치(색이 짙을수록 높습니다)입니다. 굵은 테두리가 기준 칸이고, 빗금 칸은 계산이 막힌 조합(영구성장률이 WACC 이상 따위)입니다. 칸을 누르거나 슬라이더를 끌면 고릅니다.";
+}
+function 칸보기(){
+  const T=G[지금표], i=+$("세로").value, j=+$("가로").value; 칸칸[지금표]={i,j};
+  $("가로값").textContent=퍼(T.가로값[j],2); $("세로값").textContent=퍼(T.세로값[i],1);
+  const v=T.값[i][j]; $("칸값").textContent=typeof v==="number"?주당(v):"계산하지 않음(계산이 막힌 조합)";
+  $("칸말").textContent=typeof v==="number"&&G.종가?종가말+" "+주당(G.종가)+"의 "+Math.round(v/G.종가*100)+"% · 기준 칸 대비 "+부호(v/G.기준.주-1):"";
+  $("heat").querySelectorAll("td").forEach(td=>td.classList.toggle("sel",+td.dataset.i===i&&+td.dataset.j===j));
+}
+표들.forEach(([키,T])=>{const b=document.createElement("button"); b.type="button"; b.dataset.t=키; b.textContent="WACC × "+T.세로이름; b.addEventListener("click",()=>표보기(키)); $("표단추").appendChild(b);});
+$("가로").addEventListener("input",칸보기); $("세로").addEventListener("input",칸보기);
+
+// ═══ 역산 곡선 ═══
+function 역글(v){const 역=G.역산곡선; if(v==null) return "–"; const 지수=역.대상.every(t=>/^6\d6$/.test(t)); if(지수) return G.지수눈금.배율===100?Math.round(v*100).toString():v.toFixed(3);
+  return Math.abs(v)<1.5?퍼(v,2):v.toFixed(3);}
+function 역산(){
+  const 역=G.역산곡선, svg=$("inv"); if(!역){svg.innerHTML=""; $("invCap").textContent="종가가 없어 역산 곡선을 그리지 않았습니다."; return;}
+  const 점=역.점.filter(p=>p.WACC!=null), 값점=점.filter(p=>p.값!=null);
+  const W=Math.max(300,$("invBox").clientWidth), Hh=Math.round(Math.min(260,Math.max(200,W*0.38))), m={l:52,r:12,t:18,b:30};
+  svg.setAttribute("viewBox",`0 0 ${W} ${Hh}`); svg.innerHTML="";
+  if(!값점.length){$("invCap").textContent="이 범위의 WACC 에서는 종가가 성립하는 "+역.축이름+" 값이 없습니다("+(점[0]&&점[0].까닭||"역산 풀이 없음")+").";return;}
+  const xs=점.map(p=>p.WACC), ys=값점.map(p=>p.값).concat(역.기준값!=null?[역.기준값]:[]), x0=Math.min(...xs), x1=Math.max(...xs), y0=Math.min(...ys), y1=Math.max(...ys), pad=(y1-y0)*0.12||Math.abs(y1)*0.05||1;
+  const X=v=>m.l+(W-m.l-m.r)*(v-x0)/((x1-x0)||1), Y=v=>m.t+(Hh-m.t-m.b)*(y1+pad-v)/((y1-y0)+2*pad);
+  for(const g of 눈(y0-pad,y1+pad,4)){el(svg,"line",{x1:m.l,x2:W-m.r,y1:Y(g),y2:Y(g),class:"grid"}); el(svg,"text",{x:m.l-6,y:Y(g)+4,"text-anchor":"end",class:"t-tick"},역글(g));}
+  for(const p of 점.filter((_,i)=>i%2===0)) el(svg,"text",{x:X(p.WACC),y:Hh-m.b+16,"text-anchor":"middle",class:"t-tick"},퍼(p.WACC,1));
+  if(역.기준값!=null){el(svg,"line",{x1:m.l,x2:W-m.r,y1:Y(역.기준값),y2:Y(역.기준값),stroke:"var(--ghost)","stroke-dasharray":"5 4","stroke-width":1.5}); el(svg,"text",{x:W-m.r,y:Y(역.기준값)-6,"text-anchor":"end",class:"t-label"},"이 평가의 값 "+역글(역.기준값));}
+  let s="",끊=true; for(const p of 점){ if(p.값==null){끊=true;continue;} s+=(끊?"M":"L")+X(p.WACC).toFixed(1)+","+Y(p.값).toFixed(1); 끊=false; }
+  el(svg,"path",{d:s,fill:"none",stroke:"var(--flag)","stroke-width":2});
+  const 기W=G.기준.W; let 가까=값점.reduce((a,p)=>Math.abs(p.WACC-기W)<Math.abs(a.WACC-기W)?p:a,값점[0]);
+  for(const p of 값점) el(svg,"circle",{cx:X(p.WACC),cy:Y(p.값),r:p===가까?6:3.5,fill:"var(--flag)",stroke:"var(--paper)","stroke-width":2});
+  el(svg,"text",{x:X(가까.WACC)+8,y:Y(가까.값)-8,class:"t-strong"},역글(가까.값));
+  const tip=$("tipInv"), hit=el(svg,"rect",{x:m.l,y:0,width:W-m.l-m.r,height:Hh,fill:"transparent"});
+  hit.addEventListener("mousemove",e=>{const bx=svg.getBoundingClientRect(), sx=(e.clientX-bx.left)*W/bx.width; const p=점.reduce((a,q)=>Math.abs(X(q.WACC)-sx)<Math.abs(X(a.WACC)-sx)?q:a,점[0]);
+    팁(tip,$("invBox"),X(p.WACC)*bx.width/W,(p.값!=null?Y(p.값):m.t)*bx.height/Hh,`<b>WACC ${퍼(p.WACC,2)}</b><br>${역.축이름} ${p.값!=null?역글(p.값):"풀이 없음"}`);});
+  hit.addEventListener("mouseleave",()=>tip.hidden=true);
+  $("invCap").textContent=종가말+" "+주당(역.종가)+"에 맞으려면, 다른 가정을 그대로 둘 때 "+역.축이름+이가(역.축이름)+" 이만큼이어야 합니다 — WACC "+퍼(가까.WACC,2)+"에서 "+역글(가까.값)+"(이 평가의 값 "+역글(역.기준값)+"). 붉은 선은 WACC마다 그 값을 평가 모델의 역산으로 다시 푼 것입니다"+(G.지수눈금.글&&역.대상.every(t=>/^6\d6$/.test(t))?"("+G.지수눈금.글+")":"")+".";
+}
+
+// ═══ 역산 곡선 아래 — 본편 Reverse DCF 절의 판정 문단 · 평가기준일 분석 ═══
+(function(){
+  const 곳=$("역판정"), 역=서&&서.역산;
+  if(!역||!(역.판정||[]).length){곳.innerHTML=""; return;}
+  곳.innerHTML=역.판정.map(g=>'<p class="verdict">'+줄글(g)+"</p>").join("")+
+    ((역.분석||[]).length?'<details class="more"><summary>평가기준일 분석</summary>'+역.분석.map(b=>블록글(b,역.번호)).join("")+"</details>":"")+본편로(역.번호);
+})();
+
+// ═══ 결합 민감도 쌓기 ═══
+const 결=D.결합;
+function 분포(진행){
+  const svg=$("hist"); if(!결){$("분포절").hidden=true; return;}
+  const W=Math.max(300,$("histBox").clientWidth), Hh=Math.round(Math.min(260,Math.max(200,W*0.38))), m={l:40,r:12,t:22,b:30};
+  svg.setAttribute("viewBox",`0 0 ${W} ${Hh}`); svg.innerHTML="";
+  const 분=결.분포, 구=결.구간;
+  if(!구){ $("histCap").textContent="판마다의 값이 없는 옛 판이라 분위만 보입니다 — 가운데 "+주당(분.P50)+" · 아래 오 퍼센트 "+주당(분.P5)+" · 위 오 퍼센트 "+주당(분.P95)+"."; return; }
+  const lo=구.시작, hi=구.시작+구.폭*구.수, 수=결.차례.length, 보인=Math.round(수*진행), 개=Array(구.수).fill(0);
+  for(let i=0;i<보인;i++) 개[결.차례[i]]++;
+  const 최대=Math.max(...구.개수)||1, X=v=>m.l+(W-m.l-m.r)*(v-lo)/((hi-lo)||1), Y=c=>m.t+(Hh-m.t-m.b)*(1-c/(최대*1.1));
+  for(const g of 눈(lo,hi,5)) {el(svg,"text",{x:X(g),y:Hh-m.b+16,"text-anchor":"middle",class:"t-tick"},주당축(g));}
+  el(svg,"line",{x1:m.l,x2:W-m.r,y1:Y(0),y2:Y(0),class:"axis"});
+  const bw=(W-m.l-m.r)/구.수;
+  for(let i=0;i<구.수;i++) if(개[i]>0) el(svg,"rect",{x:m.l+bw*i+1,y:Y(개[i]),width:Math.max(1,bw-2),height:Y(0)-Y(개[i]),rx:1.5,fill:"var(--series-1)"});
+  if(진행>=1){
+    for(const [k,말] of [["P5","아래 오 퍼센트"],["P50","가운데"],["P95","위 오 퍼센트"]]){const v=분[k]; if(v==null) continue; el(svg,"line",{x1:X(v),x2:X(v),y1:m.t,y2:Y(0),stroke:"var(--ink-2)","stroke-dasharray":k==="P50"?"":"3 3","stroke-width":1.2});
+      el(svg,"text",{x:X(v),y:m.t-6,"text-anchor":"middle",class:"t-tick"},말);}
+    if(G.종가&&G.종가>=lo&&G.종가<=hi){el(svg,"line",{x1:X(G.종가),x2:X(G.종가),y1:m.t,y2:Y(0),stroke:"var(--flag)","stroke-width":1.8}); el(svg,"text",{x:X(G.종가)+4,y:m.t+12,class:"t-flag"},"종가");}
+  }
+  const 자=결.종가자리, 포=결.포함||{};
+  const 포함말=" 할인율(WACC)"+(포.할인율?"은 이 조합에서 함께 옮겼고":"은 기준에 고정했고")+", 영구성장률"+(포.영구성장률?"도 함께 옮겼습니다.":"은 기준에 고정했습니다.");
+  const 지=서&&서.결합지렛대, 지말=!지?"":지.포함===true?" 값을 가르는 가정("+지.이름+")이 이 조합에 들어 있습니다.":지.포함==="일부"?" 값을 가르는 가정("+지.이름+") 가운데 일부만 이 조합에 들어 있습니다.":" 값을 가르는 가정("+지.이름+")은 이 조합에 들어 있지 않습니다.";
+  $("histCap").textContent="근거 범위 안에서 가정 여럿("+결.손잡이.map(h=>h.이름).join(" · ")+")을 함께 옮긴 "+결.성공.toLocaleString("ko-KR")+"개 조합의 주당가치입니다(계산이 막힌 조합 "+(결.실패||0)+"). 가운데 "+주당(분.P50)+", 아래 오 퍼센트 "+주당(분.P5)+", 위 오 퍼센트 "+주당(분.P95)+"."+
+    포함말+지말+(G.종가?(자==null?"":(" "+종가말+은는(종가말)+" 이 조합들 가운데 아래에서 "+Math.round(자*100)+"% 자리에 섭니다"+(자>=1?"(모든 조합보다 높습니다)":"")+(자<=0?"(모든 조합보다 낮습니다)":"")+". 확률이 아니라 자리입니다.")):"");
+}
+let 쌓는=null;
+$("쌓기").addEventListener("click",()=>{ if(쌓는) 쌓는.멈춤(); 쌓는=시계(3200,t=>분포(t),()=>{쌓는=null;}); });
+
+// ═══ 풋볼필드 ═══
+function 풋볼(){
+  const 띠=D.풋볼||[], svg=$("ff"); if(!띠.length){svg.innerHTML=""; return;}
+  const W=Math.max(300,$("ffBox").clientWidth), 좁=W<520, 이름폭=좁?0:Math.min(230,W*0.4), 행=좁?40:30, Hh=띠.length*행+40;
+  svg.setAttribute("viewBox",`0 0 ${W} ${Hh}`); svg.innerHTML="";
+  const 값=[].concat(...띠.map(b=>[b.낮음,b.높음])).concat(G.종가?[G.종가]:[]), lo=Math.min(0,...값), hi=Math.max(...값)*1.06;
+  const x0=이름폭+(좁?0:10), x1=W-10, X=v=>x0+(x1-x0)*(v-lo)/((hi-lo)||1);
+  for(const g of 눈(lo,hi,4)){el(svg,"line",{x1:X(g),x2:X(g),y1:8,y2:Hh-24,class:"grid"}); el(svg,"text",{x:X(g),y:Hh-8,"text-anchor":"middle",class:"t-tick"},주당축(g));}
+  띠.forEach((b,i)=>{const y=12+i*행, yb=좁?y+16:y+3;
+    if(좁) el(svg,"text",{x:0,y:y+10,class:"t-label"},b.이름); else el(svg,"text",{x:이름폭,y:y+14,"text-anchor":"end",class:"t-label"},b.이름);
+    const r=el(svg,"rect",{x:X(b.낮음),y:yb,width:Math.max(2,X(b.높음)-X(b.낮음)),height:14,rx:3,fill:"var(--band)",stroke:"var(--accent)","stroke-width":1});
+    if(b.가운데!=null) el(svg,"line",{x1:X(b.가운데),x2:X(b.가운데),y1:yb-2,y2:yb+16,stroke:"var(--accent)","stroke-width":2.5});
+    const t=el(svg,"title",{}); t.textContent=b.이름+" — "+주당(b.낮음)+" ~ "+주당(b.높음)+" · "+b.출처; r.appendChild(t);});
+  if(G.종가){const xp=X(G.종가), 왼=xp>W*0.6; el(svg,"line",{x1:xp,x2:xp,y1:4,y2:Hh-24,stroke:"var(--flag)","stroke-width":1.8,"stroke-dasharray":"5 3"}); el(svg,"text",{x:xp+(왼?-4:4),y:Hh-28,"text-anchor":왼?"end":"start",class:"t-flag"},"종가 "+주당(G.종가));}
+  $("ffCap").textContent="띠마다 그 방법으로 낸 주당가치의 범위입니다. 굵은 금은 그 방법의 기준값, 붉은 점선은 "+종가말+"입니다. 띠는 있는 재료로만 세웠습니다: "+띠.map(b=>b.이름+"("+b.출처+")").join(" · ")+".";
+}
+
+// ═══ 모델 설계(본편의 추정 구조 ~ 가치 브리지 — 글과 표는 본편 그대로) ═══
+(function(){
+  const 곳=$("설계");
+  if(!설||!설.절||!설.절.length){
+    $("설계설명").textContent="이 판에는 모델 설계가 실리지 않았습니다. 본편 레터를 함께 주어 판을 다시 내야 항목마다의 추정 근거가 보입니다.";
+    return;
+  }
+  $("설계설명").innerHTML="이 페이지의 모든 숫자는 아래 설계에서 나왔습니다. 매출부터 가치 브리지까지 모델이 값을 넘긴 차례대로, 항목마다 무엇을 추정해야 했고 공시가 무엇을 주었으며 어떤 동인과 가정으로 어떻게 셈했는지를 본편 그대로 옮겼습니다. 절을 펼쳐 읽습니다"+(본편주소?' · 그림과 부록은 <a href="'+막글(본편주소)+'">본편 레터</a>에 있습니다.':".");
+  곳.innerHTML=설.절.map(x=>
+    '<details id="설계-'+x.번호+'"><summary><span class="t">'+x.번호+". "+줄글(x.제목)+'</span><span class="k" aria-hidden="true"></span>'+
+    (x.요약?'<span class="s">'+줄글(x.요약)+"</span>":"")+'</summary><div class="body">'+
+    x.블록.map(b=>블록글(b,x.번호)).join("")+
+    (본편주소?'<a class="go" href="'+막글(본편주소)+"#s"+x.번호+'">본편 '+x.번호+"절에서 보기</a>":"")+
+    "</div></details>").join("");
+})();
+
+// ═══ 틀릴 길 · 다음 점검 · 이해관계(본편 모니터링 · 평가자의 이해관계 절의 첫 문단) ═══
+(function(){
+  const 끝=(서&&서.끝)||{}, 줄=[];
+  for(const k of ["신호","자리"]){const x=끝[k]; if(!x||!(x.글||[]).length) continue;
+    줄.push("<h3>"+줄글(x.제목)+"</h3>"+x.글.map(g=>"<p>"+줄글(g)+"</p>").join("")+본편로(x.번호));}
+  if(!줄.length){$("끝절").hidden=true; return;}
+  $("끝").innerHTML=줄.join("");
+})();
+
+// ═══ 이 판을 읽는 방법 ═══
+(function(){
+  const h=D.해시, 짧=s=>s?s.slice(0,12):"없음";
+  $("about").innerHTML=[
+    "숫자는 평가 모델(파이썬)이 미리 낸 레터 장부 · 민감도 격자 · 결합 민감도 파일의 값이고, 데이터 객체에 그 파일들이 그대로 들어 있습니다.",
+    "글은 본편 레터에서 그대로 옮겼습니다 — 결론 · Narrative · 시나리오 서술 · 가정마다의 Narrative 문장 · Reverse DCF 판정 · 틀릴 길과 다음 점검 · 모델 설계. 이 판이 쓴 글은 표와 그림의 설명뿐입니다.",
+    "평가 모델을 "+G.엔진실행.toLocaleString("ko-KR")+"번 돌려 격자를 냈습니다(만든 날 "+G.만든날+" · 모델 지문 "+G.엔진지문+").",
+    "파일 지문 — 장부 "+짧(h.장부)+" · 격자 "+짧(h.격자)+" · 결합 민감도 "+짧(h.결합)+(h.레터?" · 레터 "+짧(h.레터):"")+". 레터 게이트가 장부의 재료 지문으로 같은 파일인지, 판의 글이 본편과 같은지 맞춥니다.",
+    "결과 이름은 「이 가정들에서 계산한 주당가치」입니다. 분포의 자리는 확률이 아닙니다."
+  ].concat(본편주소?['근거와 계산의 전문(그림 · 부록 · 민감도)은 <a href="'+막글(본편주소)+'">본편 레터</a>에 모델을 세운 순서대로 있습니다.']:
+    ["본편 레터 없이 낸 판입니다 — 서사와 모델 설계가 빠졌습니다."]).map(x=>"<li>"+x+"</li>").join("");
+})();
+
+// ═══ 처음 그림 ═══
+let 크기틀=null, 지난폭=0;
+function 전부(){그리기(false); if(지금표) 히트(), 칸보기(); 역산(); 분포(1); 풋볼();}
+const 다시=()=>{const w=document.querySelector(".wrap").clientWidth; if(w&&w!==지난폭){지난폭=w; clearTimeout(크기틀); 크기틀=setTimeout(전부,60);}};
+window.addEventListener("resize",다시); if(window.ResizeObserver) new ResizeObserver(다시).observe(document.querySelector(".wrap"));
+if(시들.length) 헤드보기(시들.includes("기준")?"기준":시들[0]);
+if(지금표) 표보기(지금표);
+글보이기(); 단추(); 전부();
+})();
+</script>
+</body>
+</html>

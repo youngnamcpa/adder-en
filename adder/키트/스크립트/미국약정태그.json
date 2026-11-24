@@ -1,0 +1,57 @@
+{
+ "뜻": "미국원천읽기.py 가 companyfacts 에서 읽는 태그 목록(2026-10-25 FX-C). 회사 이름 없음 — 표준 태그 · 회사 확장 태그 정규식만. 고칠 때는 이 파일만 고친다.",
+ "형식": "미국약정태그 1",
+ "약정": [
+  {"태그": "UnrecordedUnconditionalPurchaseObligationBalanceSheetAmount", "이름": "무조건 구매의무(장부 밖)", "성격후보": "혼합",
+   "기간별": {"1년내": ["UnrecordedUnconditionalPurchaseObligationBalanceOnFirstAnniversary", "UnrecordedUnconditionalPurchaseObligationDueInRemainderOfFiscalYear"]}},
+  {"태그": "PurchaseObligation", "이름": "구매의무", "성격후보": "혼합",
+   "기간별": {"1년내": ["PurchaseObligationDueInNextTwelveMonths", "PurchaseObligationFutureMinimumPaymentsRemainderOfFiscalYear"]}},
+  {"태그": "LongTermPurchaseCommitmentAmount", "이름": "장기 구매약정", "성격후보": "혼합"},
+  {"태그": "PurchaseCommitmentRemainingMinimumAmountCommitted", "이름": "구매약정 잔여 최소액", "성격후보": "혼합"},
+  {"태그": "SignificantPurchaseCommitmentRemainingMinimumAmountCommitted", "이름": "주요 구매약정 잔여 최소액", "성격후보": "혼합"},
+  {"태그": "RecordedUnconditionalPurchaseObligation", "이름": "무조건 구매의무(장부 안)", "성격후보": "혼합"},
+  {"태그": "ContractualObligation", "이름": "계약상 의무 합계", "성격후보": "혼합",
+   "기간별": {"1년내": ["ContractualObligationDueInNextTwelveMonths", "ContractualObligationFutureMinimumPaymentsDueRemainderOfFiscalYear"]}},
+  {"태그": "OtherCommitment", "이름": "그 밖의 약정", "성격후보": "모름",
+   "기간별": {"1년내": ["OtherCommitmentDueInNextTwelveMonths", "OtherCommitmentsFutureMinimumPaymentsRemainderOfFiscalYear"]}},
+  {"태그": "CapitalExpendituresIncurredButNotYetPaid", "이름": "미지급 설비대금", "성격후보": "설비취득", "꼴": "기간"}
+ ],
+ "약정_ifrs": [
+  {"태그": "CurrentPayablesForPurchaseOfNoncurrentAssets", "이름": "비유동자산 취득 미지급금", "성격후보": "설비취득"}
+ ],
+ "약정_확장정규식": ["(?i)PurchaseObligation$", "(?i)PurchaseCommitment(s)?(Amount)?$", "(?i)CapitalCommitment(s)?$",
+                 "(?i)LeasesNotYetCommenced", "(?i)LeaseNotYetCommenced", "(?i)NotYetCommenced.*(Payments|Amount|Liability)$",
+                 "(?i)ConstructionCommitment"],
+ "확장_성격": [["(?i)Lease", "사용권"], ["(?i)Construction|Capital", "설비취득"], ["(?i)Purchase", "혼합"]],
+ "RPO": {"us-gaap": ["RevenueRemainingPerformanceObligation"], "ifrs-full": ["TransactionPriceAllocatedToRemainingPerformanceObligations"]},
+ "RPO비중": {"us-gaap": ["RevenueRemainingPerformanceObligationPercentage"]},
+ "누계": {
+  "매출": {"us-gaap": ["RevenueFromContractWithCustomerExcludingAssessedTax", "Revenues", "SalesRevenueNet", "RevenueFromContractWithCustomerIncludingAssessedTax"],
+          "ifrs-full": ["Revenue", "RevenueFromContractsWithCustomers"]},
+  "CAPEX": {"us-gaap": ["PaymentsToAcquirePropertyPlantAndEquipment", "PaymentsToAcquireProductiveAssets", "PaymentsToAcquireOtherProductiveAssets"],
+            "ifrs-full": ["PurchaseOfPropertyPlantAndEquipmentClassifiedAsInvestingActivities", "PurchaseOfPropertyPlantAndEquipment"]},
+  "무형취득": {"us-gaap": ["PaymentsToAcquireIntangibleAssets", "PaymentsForSoftware", "PaymentsToDevelopSoftware"],
+             "ifrs-full": ["PurchaseOfIntangibleAssetsClassifiedAsInvestingActivities", "PurchaseOfIntangibleAssets"]},
+  "사업결합취득": {"us-gaap": ["PaymentsToAcquireBusinessesNetOfCashAcquired", "PaymentsToAcquireBusinessesGross"],
+              "ifrs-full": ["CashFlowsUsedInObtainingControlOfSubsidiariesOrOtherBusinessesClassifiedAsInvestingActivities"]},
+  "유형상각": {"us-gaap": ["Depreciation", "DepreciationNonproduction", "CostOfGoodsAndServicesSoldDepreciation"],
+             "ifrs-full": ["DepreciationPropertyPlantAndEquipment", "DepreciationExpense"]},
+  "DandA": {"us-gaap": ["DepreciationDepletionAndAmortization", "DepreciationAmortizationAndAccretionNet", "DepreciationAndAmortization"],
+            "ifrs-full": ["DepreciationAndAmortisationExpense", "DepreciationAmortisationAndImpairmentLossReversalOfImpairmentLossRecognisedInProfitOrLoss"]},
+  "금융리스신규": {"us-gaap": ["RightOfUseAssetObtainedInExchangeForFinanceLeaseLiability"]},
+  "미지급설비": {"us-gaap": ["CapitalExpendituresIncurredButNotYetPaid"], "ifrs-full": ["CurrentPayablesForPurchaseOfNoncurrentAssets"]}
+ },
+ "유형자산군": {
+  "합계": {"us-gaap": ["PropertyPlantAndEquipmentGross", "PropertyPlantAndEquipmentAndFinanceLeaseRightOfUseAssetBeforeAccumulatedDepreciationAndAmortization"],
+          "ifrs-full": ["PropertyPlantAndEquipmentGrossCarryingAmount"]},
+  "군": {"Land": ["Land", "LandAndLandImprovements"],
+        "Buildings": ["BuildingsAndImprovementsGross"],
+        "Machinery and equipment": ["MachineryAndEquipmentGross"],
+        "Construction in progress": ["ConstructionInProgressGross"],
+        "Leasehold improvements": ["LeaseholdImprovementsGross"],
+        "Furniture and fixtures": ["FurnitureAndFixturesGross"],
+        "Capitalized software": ["CapitalizedComputerSoftwareGross"]},
+  "확장정규식": "(?i)(Server|Network|Equipment|Building|Land|Construction|Leasehold|Furniture|Computer|Vehicle|Machinery|Facilit).*Gross$"
+ },
+ "인원": {"dei": ["EntityNumberOfEmployees"]}
+}

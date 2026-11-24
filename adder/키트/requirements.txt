@@ -1,0 +1,10 @@
+# ADDER(키트) 파이썬 패키지 — python 3.11 이상
+# 필수
+requests
+openpyxl
+xlrd
+# 선택 — 엑셀 수식 재계산: Windows + Excel 이면 pywin32, 엑셀이 없으면 formulas(준비점검 ③ 이 고른다)
+# pywin32; sys_platform == "win32"
+# formulas
+# 선택 — 한국IR협의회 리서치 보고서 받기(kirs_리포트.py): 사이트 인증서 사슬이 certifi 로 검증되지 않아 운영체제 저장소를 쓴다
+# truststore

@@ -1,0 +1,278 @@
+{
+ "_설명": "조항추출.py · 서술유사도.py · 유사기업거리.py 의 낱말 목록과 문턱. 결과를 보기 전에 정한 값이다(2026-10-21). 도구는 이 파일만 읽고 값을 스스로 바꾸지 않는다. 바꾸면 이 파일을 고치고 개정이력에 적는다. 회사 · 업종 이름을 여기에 넣지 않는다",
+ "조항추출": {
+  "종류": {
+   "재무약정": {
+    "낱말": [
+     "재무약정",
+     "차입약정",
+     "차입 약정",
+     "기한의 이익",
+     "기한이익",
+     "약정 위반",
+     "covenant",
+     "Covenant",
+     "financial covenant",
+     "Financial covenant",
+     "covenants",
+     "Covenants",
+     "financial covenants"
+    ],
+    "닿는블록": "재무약정",
+    "함께": [
+     [
+      "부채비율",
+      "이자보상",
+      "재무비율",
+      "재무 비율",
+      "순차입금",
+      "자기자본비율",
+      "Leverage Ratio",
+      "leverage ratio",
+      "Interest Coverage Ratio",
+      "interest coverage ratio",
+      "Coverage Ratio",
+      "EBITDA to",
+      "ratio of"
+     ],
+     [
+      "유지하여야",
+      "유지해야",
+      "초과하지 않",
+      "미달하지 않",
+      "준수하여야",
+      "준수해야",
+      "약정에 따라",
+      "약정상",
+      "shall maintain",
+      "must maintain",
+      "required to maintain",
+      "shall not exceed",
+      "not to exceed",
+      "no less than",
+      "not less than",
+      "maintain a ratio",
+      "to maintain a minimum",
+      "to maintain a maximum"
+     ]
+    ],
+    "제외": [
+     "no financial covenants",
+     "not contain any financial covenants",
+     "not subject to any financial covenants",
+     "without financial covenants",
+     "재무약정이 없",
+     "재무약정은 없"
+    ]
+   },
+   "담보": {
+    "낱말": [
+     "담보로 제공",
+     "담보 제공",
+     "담보제공",
+     "근저당",
+     "질권",
+     "담보로 설정",
+     "secured by",
+     "pledged as collateral",
+     "collateralized by"
+    ],
+    "닿는블록": "재무약정"
+   },
+   "지급보증": {
+    "낱말": [
+     "지급보증",
+     "채무보증",
+     "연대보증",
+     "보증을 제공",
+     "지급 보증",
+     "fully and unconditionally guaranteed",
+     "guaranteed by",
+     "guarantees of"
+    ],
+    "닿는블록": "재무약정",
+    "제외": [
+     "not guarantees of future",
+     "are not guarantees",
+     "is not a guarantee",
+     "not a guarantee of",
+     "no guarantee",
+     "no assurance",
+     "cannot guarantee",
+     "can not guarantee",
+     "do not guarantee",
+     "does not guarantee"
+    ]
+   },
+   "약정사항": {
+    "낱말": [
+     "약정사항",
+     "약정 사항",
+     "약정한도",
+     "약정 한도",
+     "여신한도",
+     "한도약정",
+     "한도 약정",
+     "당좌차월",
+     "revolving credit facility",
+     "Revolving Credit Facility",
+     "credit agreement",
+     "Credit Agreement",
+     "line of credit",
+     "commercial paper program"
+    ],
+    "닿는블록": "재무약정",
+    "제외": [
+     "no financial covenants",
+     "not contain any financial covenants",
+     "not subject to any financial covenants"
+    ]
+   },
+   "장기공급계약": {
+    "낱말": [
+     "장기공급계약",
+     "장기 공급 계약",
+     "장기공급 계약",
+     "장기 공급계약",
+     "Long-term supply",
+     "LTA",
+     "long-term supply agreement",
+     "supply agreement"
+    ],
+    "닿는블록": "매출 축(B 갈래 참고 — 외부제약 블록이 아니다)"
+   },
+   "판매계약": {
+    "낱말": [
+     "판매계약",
+     "판매 계약",
+     "최소구매",
+     "최소 구매",
+     "물량 보장",
+     "take-or-pay",
+     "Take-or-Pay",
+     "선수금을 수령",
+     "선수금 수령",
+     "minimum purchase commitment",
+     "minimum volume commitment"
+    ],
+    "닿는블록": "매출 축(B 갈래 참고 — 외부제약 블록이 아니다)"
+   },
+   "우발부채": {
+    "낱말": [
+     "우발부채",
+     "우발채무",
+     "소송",
+     "계류 중",
+     "계류중",
+     "손해배상",
+     "loss contingency",
+     "Legal Proceedings",
+     "legal proceedings"
+    ],
+    "닿는블록": "가치 브리지(주당가치 규칙 참고 — 외부제약 블록이 아니다)"
+   }
+  },
+  "인용최대글자": 1200,
+  "문단최소글자": 15,
+  "머리말최대글자": 80,
+  "원문파일": "가정 곁 _raw 아래, 이름이 접수번호 14자리로 시작하는 .txt (dart_fetch 원문 꼴) · _raw 바로 아래 10K_YYYYMM · 10Q_YYYYMM 의 .txt · .htm (sec_fetch 원문 꼴 — 같은 이름이면 .txt). _raw/peers 는 보지 않는다",
+  "같은문단": "공백 정규화 후 같은 인용은 한 후보로 묶고 파일을 함께 적는다",
+  "함께_뜻": "종류에 「함께」 가 있으면 「낱말」 하나가 걸리거나, 「함께」 의 목록마다 하나씩 다 걸려야 후보다(예: 비율 낱말과 의무 낱말이 한 문단에)",
+  "제외_뜻": "종류에 「제외」 가 있으면 그 글귀(대소문자 무시)를 문단에서 지운 뒤 낱말을 댄다 — 미국 원문의 전방 진술 면책 문구(「not guarantees of future performance」)가 `지급보증` 으로, 「no financial covenants」 가 약정 후보로 잡히던 거짓 경보(2026-10-24 W18 · 유니버스 조사 실측)"
+ },
+ "조항대조": {
+  "공백정규화": "&cr; 를 지우고 모든 공백(줄바꿈 · 탭 포함)을 한 칸으로 줄인 뒤 견준다",
+  "원문인용_필수블록": [
+   "재무약정"
+  ]
+ },
+ "서술유사도": {
+  "n그램": [
+   2,
+   3
+  ],
+  "절": "「II. 사업의 내용」 전체(목차를 건너뛴 가장 긴 구간). 절범위 「개요와제품」 이면 「1. 사업의 개요」 ~ 「3. 원재료」 앞만",
+  "최소글자": 300,
+  "겹친낱말수": 10,
+  "조사꼬리": [
+   "에서는",
+   "으로서",
+   "으로는",
+   "에서",
+   "으로",
+   "에는",
+   "에게",
+   "까지",
+   "부터",
+   "하는",
+   "하고",
+   "하여",
+   "하며",
+   "되는",
+   "된다",
+   "한다",
+   "이며",
+   "으며",
+   "와",
+   "과",
+   "은",
+   "는",
+   "이",
+   "가",
+   "을",
+   "를",
+   "의",
+   "에",
+   "로",
+   "도",
+   "및",
+   "등"
+  ],
+  "하위분위_참고": 0.25,
+  "목록최근년수": 3,
+  "절범위": "전체"
+ },
+ "유사기업거리": {
+  "변수": [
+   {
+    "이름": "규모",
+    "열": "시가총액",
+    "변환": "로그"
+   },
+   {
+    "이름": "성장",
+    "열꼴": "^매출CAGR\\d+y$"
+   },
+   {
+    "이름": "수익성",
+    "열꼴": "^영업이익률_(\\d{4})$"
+   },
+   {
+    "이름": "부채",
+    "열": "DE"
+   }
+  ],
+  "최소변수": 2,
+  "MCD_최소배수": 5,
+  "support_fraction": 0.75,
+  "무작위시작": 200,
+  "시드": 42,
+  "먼후보_문턱": "거리² 가 χ²(자유도 = 쓴 변수 수)의 0.975 분위를 넘으면 참고 신호 — 분위는 Wilson-Hilferty 근사"
+ },
+ "개정이력": [
+  {
+   "날": "2026-10-21",
+   "무엇": "실제 사업보고서 한 건으로 시운전 — 「구매 약정」(유형자산 취득 약정)이 판매계약에 걸려 뺐다 · 부채비율 · 이자보상은 의무 낱말과 함께일 때만 재무약정 · 서술유사도는 II 전체(최근 서식의 「사업의 개요」 는 요약이라 짧다) · 의무 낱말에서 맨 「약정」 을 뺐다(자본관리 문단이 걸렸다 — 「약정에 따라」 · 「약정상」 만)",
+   "까닭": "결과(유사도 · 순위)가 아니라 추출 정확도를 보고 고쳤다"
+  },
+  {
+   "날": "2026-10-23",
+   "무엇": "미국 원문(10-K · 10-Q)을 읽게 하며 영어 낱말을 더했다 — 재무약정(financial covenant · 비율 낱말과 의무 낱말이 한 문단에) · 담보(secured by · pledged as collateral) · 지급보증(guaranteed by) · 약정사항(revolving credit facility · credit agreement) · 장기공급계약(supply agreement) · 판매계약(minimum purchase commitment) · 우발부채(loss contingency · legal proceedings) · ASCII 낱말은 글자 경계로 걸려 복수형(covenants)이 따로 있어야 한다 — covenants · maintain a ratio · ratio of 를 보탰다",
+   "까닭": "회차 20261023 — 미국 회사의 D 갈래가 재무약정 원문 인용을 달았는데 조항추출이 미국 원문을 읽지 않아 대조할 수 없었다(결과를 보기 전에 정한 낱말)"
+  },
+  {
+   "일시": "2026-10-24",
+   "무엇": "조항추출 종류에 「제외」 글귀(영문 면책 · 약정 없음 문장) — W18"
+  }
+ ]
+}

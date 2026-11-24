@@ -1,0 +1,10 @@
+{
+  "_설명": "DART MCP(대화용) — 서버 쪽 S1(헤더 X-OpenDART-Key 를 도구 키로) · S2(서버 환경 변수의 저자 키 폴백 제거)가 끝난 뒤에만 이 항목을 .mcp.json 으로 옮긴다(설계: 연구/준비점검_mcp_설계_20261023.md 2절). 주소는 저자가 채운다. 값이 없는 ${VAR} 는 빈 값이 아니라 글자 그대로 나가므로 :- 로 기본값을 비운다",
+  "mcpServers": {
+    "dart": {
+      "type": "http",
+      "url": "https://<저자-배포주소>/api/mcp",
+      "headers": { "X-OpenDART-Key": "${OPENDART_API_KEY:-}" }
+    }
+  }
+}

@@ -1,0 +1,64 @@
+{
+  "제목": "Preflight check",
+  "항목": {
+    "1": "Python",
+    "2": "requests · openpyxl",
+    "3": "Excel recalculation",
+    "4": "Excel application",
+    "5": "Letter video (browser · ffmpeg)",
+    "6": "DART API key",
+    "7": "SEC contact",
+    "8": "DART connection",
+    "9": "SEC connection",
+    "10": "DART MCP",
+    "11": "Base-rate panel",
+    "12": "Version",
+    "13": "Write access",
+    "14": "Law lookup (LAW_OC)",
+    "15": "Branch permissions (subagents)",
+    "16": "ECOS API key",
+    "17": "KOSIS API key"
+  },
+  "상태말": {
+    "통과": "ok",
+    "미비": "missing",
+    "선택없음": "not installed (optional)",
+    "건너뜀": "skipped",
+    "보류": "later (deferred)"
+  },
+  "다음": {
+    "없음": "Next: nothing. Start with “value <company> for me”.",
+    "있음": "Next:"
+  },
+  "안내": {
+    "1": "Install Python 3.11 or later (python.org). You have to install it yourself.",
+    "2": "pip install -r requirements.txt",
+    "3": "With Excel: pip install pywin32. Without Excel: pip install formulas — used to recalculate workbook formulas.",
+    "5": "Letter PDF and video need Edge or Chrome and ffmpeg (the letter text and HTML work without them).",
+    "6": "Only needed for Korean companies: a free OpenDART API key. Individuals get it right away.\n  1) opendart.fss.or.kr 2) top menu 「인증키 신청/관리」 → 「인증키 신청」 3) choose individual, enter e-mail, password, environment and purpose 4) the 40-character key arrives by e-mail.\n  Store it from a terminal with `python -X utf8 스크립트/준비점검.py --저장 OPENDART_API_KEY`. It is not shown on screen and is kept only in this computer's environment variables. Details: 시작하기_인증키.md",
+    "7": "For US companies the SEC asks for a contact: nothing to issue, no sign-up; your own e-mail address.\n  Store it with `python -X utf8 스크립트/준비점검.py --저장 SEC_CONTACT_EMAIL`. Details: 시작하기_인증키.md",
+    "8": "Cannot reach DART — see the cause below.",
+    "9": "Cannot reach SEC — see the cause below.",
+    "10": "Korean companies need the DART MCP connection. ADDER uses it to look up filings — add a DART MCP server (`dart`) to `.mcp.json` and restart Claude (see `.mcp.예시.json`).",
+    "11": "The base-rate panel is optional. With it, letters get “how did similar companies actually do” signals — `python 스크립트/기저율.py --받기`.",
+    "12": "A newer version exists — run `/plugin marketplace update adder`, then `/adder:키트갱신` in this folder.",
+    "13": "Cannot write to this folder or the shared cache — reopen in a folder you can write to.",
+    "14": "To fetch tax tables and statute text from the Ministry of Government Legislation you need an OC value from open.law.go.kr: sign up → 「OPEN API 신청」 → approval by staff (1–2 days) → check it under 「API인증키관리」.\n  Store it with `python -X utf8 스크립트/준비점검.py --저장 LAW_OC`. Without it the kit uses the bundled tax tables and statute cache. Details: 시작하기_인증키.md",
+    "15": "Allow python execution, WebSearch and WebFetch in Claude settings (or permissions.allow in ~/.claude/settings.json). Branch subagents cannot show approval prompts and stop without these rules. You must change permission settings yourself.",
+    "16": "Bank of Korea ECOS key (optional) — ecos.bok.or.kr/api 「인증키 신청」. This version of the kit runs without it. `--저장 ECOS_API_KEY` · Details: 시작하기_인증키.md",
+    "17": "KOSIS key (optional) — kosis.kr/openapi 「활용신청」 (approved automatically). This version of the kit runs without it. `--저장 KOSIS_API_KEY` · Details: 시작하기_인증키.md"
+  },
+  "저장": {
+    "물음": "Paste the value and press Enter (empty = later): ",
+    "됨": "Saved ({곳}). Open a new terminal and restart Claude so the MCP picks it up.",
+    "보류": "Noted as “later” (deferred). You will be asked again the first time you value a company from that market.",
+    "꼴틀림": "Wrong format ({까닭}) — not saved."
+  },
+  "첫시작": [
+    "First time? Add your keys first. This computer has neither a DART API key nor an SEC contact.",
+    "  · Korean companies: OpenDART API key (free · individuals get it right away) → `python -X utf8 스크립트/준비점검.py --저장 OPENDART_API_KEY`",
+    "  · US companies: your own e-mail (nothing to issue) → `python -X utf8 스크립트/준비점검.py --저장 SEC_CONTACT_EMAIL`",
+    "  · Where to apply, which menus, what to keep private: 시작하기_인증키.md in the kit folder",
+    "  · To do both later, run `python -X utf8 스크립트/준비점검.py --설치` and leave the values empty (recorded as “later”)."
+  ]
+}
