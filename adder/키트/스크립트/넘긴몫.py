@@ -43,7 +43,7 @@ if 여기 not in sys.path:
 from 종료코드 import 통과, 발견, 입력오류                # noqa: E402
 
 파일이름 = "넘긴몫.json"
-기본값딱지 = re.compile(r"\[기본값\]|\[판단\]\s*기본값")
+기본값딱지 = re.compile(r"\[기본값\]|\[Default\]|\[판단\]\s*기본값|\[Judgment\]\s*default", re.I)
 _15번 = re.compile(r"→\s*((?:15번\s+[ICR]-\d+\S*\s*(?:·\s*)?)+)\s*가 판정")
 _번호들 = re.compile(r"([ICR]-\d+)")
 _검토 = re.compile(r"\(검토 (R-\d+)")
@@ -120,7 +120,7 @@ def 기본값의심(가정, 가정경로, 원천폴더=None):
     for 번 in sorted(대상, key=int):
         넷 = 근거.get(번)
         첫 = ("%s" % (넷[0] if isinstance(넷, list) and 넷 else (넷 or ""))).strip()
-        if 첫.startswith("[판단]") and not 기본값딱지.search(첫) and 번 not in 답:
+        if ((첫.startswith("[판단]") or 첫.lower().startswith("[judgment]")) or 첫.lower().startswith("[judgment]")) and not 기본값딱지.search(첫) and 번 not in 답:
             낸.append((번, 첫, 대상[번]))
     return 낸
 

@@ -6,7 +6,7 @@ ADDER runs inside **Claude Code** on your computer. It gathers primary **SEC EDG
 
 ADDER never picks a target price on its own: every reported figure carries its SEC accession number and filing date, every forecast input sits on a single sheet (`12. Assumptions_scenarios`) with its basis and historical/peer range, and every economic judgment stays in your hands.
 
-Version `1.2.0` · `2026-11-24`
+Version `1.2.1` · `2026-11-24`
 
 ---
 

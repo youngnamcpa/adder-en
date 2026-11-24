@@ -83,8 +83,13 @@ def 버전맞물림(뿌리=ROOT):
     """③ 플러그인 매니페스트의 version 이 `버전.json` 의 ADDER 와 같은가(2026-10-23 — 준비점검 설계 2-3).
     둘 다 없으면 묻지 않는다(플러그인으로 묶기 전 판). 하나만 있거나 다르면 걸린다."""
     import json                                      # noqa: PLC0415
-    pv, vv = os.path.join(뿌리, ".claude-plugin", "plugin.json"), os.path.join(뿌리, "버전.json")
-    if not os.path.exists(pv) and not os.path.exists(vv):
+    pv = os.path.join(뿌리, ".claude-plugin", "plugin.json")
+    if not os.path.exists(pv):
+        pv_up = os.path.join(os.path.dirname(os.path.abspath(뿌리)), ".claude-plugin", "plugin.json")
+        if os.path.exists(pv_up):
+            pv = pv_up
+    vv = os.path.join(뿌리, "버전.json")
+    if not os.path.exists(pv) or not os.path.exists(vv):
         return []
     try:
         p = json.load(io.open(pv, encoding="utf-8")).get("version") if os.path.exists(pv) else None

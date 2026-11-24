@@ -417,6 +417,13 @@ def 라벨읽기(워크북경로):
     """
     if not 워크북경로:
         return {}
+    for _후 in (
+        os.path.join(os.path.dirname(os.path.abspath(워크북경로)), "짓기", "_internal_ko.xlsx"),
+        os.path.join(os.path.dirname(os.path.abspath(워크북경로)), "_internal_ko.xlsx"),
+    ):
+        if os.path.isfile(_후):
+            워크북경로 = _후
+            break
     try:
         import openpyxl
         import 좌표
@@ -2818,13 +2825,30 @@ def 관문검사(가정, 라벨):
 }
 
 
+영문출처딱지 = {
+    "filing": "공시", "sec": "공시", "statute": "공시", "law": "공시",
+    "calculated": "계산", "calc": "계산",
+    "observed": "관측", "market": "관측",
+    "judgment": "판단", "judgement": "판단",
+    "default": "기본값",
+    "company claim": "회사주장", "company": "회사주장", "guidance": "회사주장",
+    "external estimate": "외부평가", "external": "외부평가",
+    "unresolved": "미해결",
+}
+
+
 def _딱지(글):
-    """근거 S칸 맨 앞의 「[공시]」 꼴 딱지를 읽는다. 없으면 None."""
+    """근거 S칸 맨 앞의 「[공시]」 또는 영문 「[Filing]」 꼴 딱지를 읽는다. 없으면 None."""
     s = (글 or "").strip()
     for d in 출처딱지:
         for 꼴 in ("[%s]" % d, "[%s]" % d.upper(), "%s]" % d):
             if s.startswith(꼴):
                 return d
+    if s.startswith("[") and "]" in s:
+        head = s[1:s.index("]")].strip().lower()
+        for k_en, k_ko in 영문출처딱지.items():
+            if head == k_en or head.startswith(k_en + " ") or head.startswith(k_en + ":") or head.startswith(k_en + "-"):
+                return k_ko
     return None
 
 

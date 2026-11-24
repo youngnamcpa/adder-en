@@ -1,17 +1,18 @@
-# ADDER (English Edition v1.2.0) — Mandatory US & English Operating Rules
+# ADDER (English Edition 1.2.1) — Mandatory US & English Operating Rules
 
 > **CRITICAL — READ THIS SECTION FIRST (OVERRIDES LANGUAGE DEFAULTS BELOW)**
 >
 > 1. **100% American English Interface & Prose**: Conduct all user conversations, assumption stop-point questions, basis notes, review comments, narratives, and valuation letters in clear **American English**. Never output Korean text to the user or into deliverable cells.
 > 2. **US Market Default (`SEC EDGAR`)**: Unless the user explicitly asks for another jurisdiction, every valuation targets a US-listed filer (`--국가 US` / SEC EDGAR `10-K`, `10-Q`, `8-K`, US Treasury par yield curve, BLS QCEW, and Damodaran US datasets). Ignore Korean-only tools (`OpenDART`, `DART MCP`, `LAW_OC`, `ECOS`, `KOSIS`).
 > 3. **Assumptions JSON (`가정_<TICKER>.json`) — Schema Keys vs. Prose Values**:
->    - Keep all **JSON object keys** and **engine enum codes** (`"비관"`, `"기준"`, `"낙관"`, `"기중"`, `"기말"`, `"실측"`, `"유추"`, `"추정"`, `"확인완료"`, `"미사용"`, `"사용"`, `"예"`, `"아니오"`, `"포함"`, `"제외"`, `"세율수렴"`, etc.) in their exact schema format so `dcf엔진.py`, `붓기.py`, and `자체검사.py` validate them without error.
+>    - Keep all **JSON object keys** and **engine enum codes** (`"비관"`, `"기준"`, `"낙관"`, `"기중"`, `"기말"`, `"실측"`, `"유추"`, `"추정"`, `"확인완료"`, `"원문 확인"`, `"미사용"`, `"사용"`, `"예"`, `"아니오"`, `"포함"`, `"제외"`, `"세율수렴"`, `"백만달러"`, `"천달러"`, `"달러"`, `"비관낮음"`, `"비관높음"`, `"무방향"`, `"현금성"`, `"운전자본"`, `"영업자산"`, `"비영업자산"`, etc.) in their exact schema format so `dcf엔진.py`, `붓기.py`, and `자체검사.py` validate them without error (`export_en_workbook.py` automatically translates currency units and status enums in the exported Excel workbook).
 >    - Write **all human-readable display names and free-text explanations in American English**, including:
->      - Segment and cost-driver display names (`메타.스트림이름`, `메타.원가이름`, `구조.원가줄[*].이름`) — e.g., `"Data Center"`, `"Gaming"`, `"Research and development"`, `"Sales and marketing"`.
+>      - Segment and cost-driver display names (`구조.매출구분[*].이름`, `구조.원가줄[*].이름`) — e.g., `"Data Center"`, `"Gaming"`, `"Research and development"`, `"Sales and marketing"`.
 >      - Every assumption's `근거` (Basis — start with `[Filing]`, `[Observed]`, `[Calculated]`, or `[Judgment]`), `출처` (Source), `비고` (Notes), `WACC근거`, `사유`, `검토의견` (Review comments, >= 15 characters in English), `Narrative`, and `서사연결`.
 > 4. **Automatic 17-Sheet English Excel Workbook Output**:
 >    - `워크북마감.py` automatically runs `scripts/export_en_workbook.py` at completion: it preserves the coordinate-verified internal copy at `짓기/_internal_ko.xlsx` (for `대조.py` and `자체검사.py`) and exports the user-facing `<Company>_DCF.xlsx` with all 17 English sheet names (`1. Value_per_share` through `17. Driver_map_and_evidence`), English formulas/dropdowns, USD cents formatting, and **zero Korean characters**.
 >    - You can also invoke `python -X utf8 scripts/export_en_workbook.py <input.xlsx> <output.xlsx>` directly at any time.
+>    - **Valuation Letter / Memorandum (`Letter_<TICKER>.md`)**: Do **not** run the Korean-only `레터.py` / `레터게이트.py` stages (`초안`, `교열`, `편집`, `게이트`). Instead, run `회차실행.py` through `--단계 원천,IR,동인원천,합류,동인진단,동인지도,엔진,짓기,붓기,마감,자체검사,대조,거친바퀴,격자,결합` and generate the English valuation memorandum with `python -X utf8 scripts/build_en_letter.py 가정_<TICKER>.json --workbook <Company>_DCF.xlsx -o Letter_<TICKER>.md`.
 > 5. **English Preflight & Setup Commands**:
 >    - Preflight check: `python -X utf8 scripts/preflight.py` (or `/preflight`)
 >    - Save SEC contact email privately: `python -X utf8 scripts/preflight.py --save SEC_CONTACT_EMAIL`
